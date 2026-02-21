@@ -109,7 +109,7 @@ $time_slots = ['09:00', '10:00', '11:00', '12:00', '13:00', '14:00', '15:00', '1
 
                         <div class="form-group">
                             <label for="facility_id">Select Facility *</label>
-                            <select id="facility_id" name="facility_id" required onchange="this.form.submit();">
+                            <select id="facility_id" name="facility_id" required>
                                 <option value="">-- Choose a facility --</option>
                                 <?php foreach ($facilities as $facility): ?>
                                     <option value="<?php echo $facility['facility_id']; ?>">

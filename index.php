@@ -1,6 +1,11 @@
 <?php
 require_once 'session.php';
 
+// Handle logout first (before any output)
+if (isset($_GET['logout']) && $_GET['logout'] == 'true') {
+    session_destroy();
+}
+
 redirect_if_logged_in();
 
 $error = '';
