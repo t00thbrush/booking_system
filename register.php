@@ -123,7 +123,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                         placeholder="johndoe"
                         minlength="3"
                     >
-                    <small style="color: #7f8c8d;">Minimum 3 characters, letters, numbers, and underscores only</small>
+                    <small class="text-muted">Minimum 3 characters, letters, numbers, and underscores only</small>
                 </div>
 
                 <div class="form-group">
@@ -148,7 +148,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                         placeholder="••••••"
                         minlength="6"
                     >
-                    <small style="color: #7f8c8d;">Minimum 6 characters</small>
+                    <small class="text-muted">Minimum 6 characters</small>
                 </div>
 
                 <div class="form-group">
@@ -166,8 +166,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 <button type="submit" class="btn btn-primary btn-block">Register</button>
             </form>
 
-            <p style="text-align: center; margin-top: 20px; color: #666;">
-                Already have an account? <a href="index.php" style="color: #3498db; text-decoration: none; font-weight: 600;">Login here</a>
+            <p class="text-center" style="margin-top: 20px;">
+                Already have an account? <a href="index.php" style="color: var(--primary-color); text-decoration: none; font-weight: 600;">Login here</a>
             </p>
             <?php endif; ?>
         </div>

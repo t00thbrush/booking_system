@@ -127,8 +127,9 @@ foreach ($facilities as $facility) {
         </div>
 
         <!-- Facility Bookings -->
-        <div style="background-color: #fff; padding: 30px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); margin-bottom: 30px;">
-            <h2 style="margin-bottom: 20px; color: #2c3e50;">Facility Booking Summary</h2>
+        <div class="card" style="margin-bottom: 30px;">
+            <div class="card-body">
+            <h2 style="margin-bottom: 20px;">Facility Booking Summary</h2>
             <div class="dashboard-grid">
                 <?php foreach ($facilities as $facility): ?>
                     <div class="stat-card" style="border-left-color: #3498db;">
@@ -141,9 +142,10 @@ foreach ($facilities as $facility) {
         </div>
 
         <!-- Bookings Management -->
-        <div style="background-color: #fff; padding: 30px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
+        <div class="card">
+            <div class="card-body">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-                <h2 style="color: #2c3e50;">Booking Management</h2>
+                <h2>Booking Management</h2>
                 <div style="display: flex; gap: 10px;">
                     <a href="admin.php?status=all" class="btn btn-primary btn-sm <?php echo $filter_status == 'all' ? 'active' : ''; ?>" style="<?php echo $filter_status == 'all' ? 'opacity: 1;' : 'opacity: 0.7;'; ?>">All</a>
                     <a href="admin.php?status=Pending" class="btn btn-warning btn-sm <?php echo $filter_status == 'Pending' ? 'active' : ''; ?>" style="<?php echo $filter_status == 'Pending' ? 'opacity: 1;' : 'opacity: 0.7;'; ?>">Pending</a>
@@ -153,7 +155,7 @@ foreach ($facilities as $facility) {
             </div>
 
             <?php if (empty($all_bookings)): ?>
-                <p style="color: #7f8c8d; text-align: center; padding: 40px 0;">
+                <p class="text-muted" style="text-align: center; padding: 40px 0;">
                     No bookings found.
                 </p>
             <?php else: ?>
@@ -200,7 +202,7 @@ foreach ($facilities as $facility) {
                                                 <button type="submit" class="btn btn-danger btn-sm">Reject</button>
                                             </form>
                                         <?php else: ?>
-                                            <span style="color: #7f8c8d;">—</span>
+                                            <span class="text-muted">—</span>
                                         <?php endif; ?>
                                     </td>
                                 </tr>
@@ -209,23 +211,28 @@ foreach ($facilities as $facility) {
                     </table>
                 </div>
             <?php endif; ?>
+            </div>
         </div>
 
         <!-- Reports Section -->
         <div style="margin-top: 40px; display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 40px;">
-            <div style="background-color: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
-                <h3 style="color: #2c3e50; margin-bottom: 15px;">📊 Quick Actions</h3>
+            <div class="card">
+                <div class="card-body">
+                <h3 style="margin-bottom: 15px;">📊 Quick Actions</h3>
                 <button class="btn btn-primary btn-block" style="margin-bottom: 10px;" onclick="alert('Report generation feature coming soon!')">Generate Daily Report</button>
                 <button class="btn btn-primary btn-block" style="margin-bottom: 10px;" onclick="alert('Report generation feature coming soon!')">Generate Weekly Report</button>
                 <button class="btn btn-primary btn-block" onclick="alert('Report generation feature coming soon!')">Generate Monthly Report</button>
+                </div>
             </div>
 
-            <div style="background-color: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
-                <h3 style="color: #2c3e50; margin-bottom: 15px;">ℹ️ System Info</h3>
-                <p style="color: #666; margin: 8px 0;"><strong>Current Time:</strong> <?php echo date('h:i A'); ?></p>
-                <p style="color: #666; margin: 8px 0;"><strong>Today:</strong> <?php echo date('l, M d, Y'); ?></p>
-                <p style="color: #666; margin: 8px 0;"><strong>Total Facilities:</strong> <?php echo count($facilities); ?></p>
-                <p style="color: #666; margin: 8px 0;"><strong>Active Users:</strong> <?php echo $user_count; ?></p>
+            <div class="card">
+                <div class="card-body">
+                <h3 style="margin-bottom: 15px;">ℹ️ System Info</h3>
+                <p class="text-muted" style="margin: 8px 0;"><strong>Current Time:</strong> <?php echo date('h:i A'); ?></p>
+                <p class="text-muted" style="margin: 8px 0;"><strong>Today:</strong> <?php echo date('l, M d, Y'); ?></p>
+                <p class="text-muted" style="margin: 8px 0;"><strong>Total Facilities:</strong> <?php echo count($facilities); ?></p>
+                <p class="text-muted" style="margin: 8px 0;"><strong>Active Users:</strong> <?php echo $user_count; ?></p>
+                </div>
             </div>
         </div>
     </div>

@@ -102,7 +102,7 @@ $time_slots = ['09:00', '10:00', '11:00', '12:00', '13:00', '14:00', '15:00', '1
             <!-- Booking Form -->
             <div>
                 <div class="booking-form">
-                    <h2 style="margin-bottom: 20px; color: #2c3e50;">New Booking</h2>
+                    <h2 style="margin-bottom: 20px;">New Booking</h2>
 
                     <form method="POST" action="">
                         <input type="hidden" name="action" value="book">
@@ -166,7 +166,7 @@ $time_slots = ['09:00', '10:00', '11:00', '12:00', '13:00', '14:00', '15:00', '1
 
             <!-- Available Facilities -->
             <div>
-                <h2 style="margin-bottom: 20px; color: #2c3e50;">Available Facilities</h2>
+                <h2 style="margin-bottom: 20px;">Available Facilities</h2>
                 <div class="facilities-grid" style="grid-template-columns: 1fr;">
                     <?php foreach ($facilities as $facility): ?>
                         <div class="facility-card">
@@ -186,12 +186,13 @@ $time_slots = ['09:00', '10:00', '11:00', '12:00', '13:00', '14:00', '15:00', '1
         </div>
 
         <!-- My Bookings -->
-        <div style="background-color: #fff; padding: 30px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
-            <h2 style="margin-bottom: 20px; color: #2c3e50;">My Bookings</h2>
+        <div class="card">
+            <div class="card-body">
+            <h2 style="margin-bottom: 20px;">My Bookings</h2>
 
             <?php if (empty($user_bookings)): ?>
-                <p style="color: #7f8c8d; text-align: center; padding: 40px 0;">
-                    No bookings yet. <a href="#" onclick="document.querySelector('[name=facility_id]').focus();" style="color: #3498db;">Book a facility now!</a>
+                <p class="text-muted" style="text-align: center; padding: 40px 0;">
+                    No bookings yet. <a href="#" onclick="document.querySelector('[name=facility_id]').focus();" style="color: var(--primary-color);">Book a facility now!</a>
                 </p>
             <?php else: ?>
                 <div style="overflow-x: auto;">
@@ -226,7 +227,7 @@ $time_slots = ['09:00', '10:00', '11:00', '12:00', '13:00', '14:00', '15:00', '1
                                                 <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Cancel this booking?')">Cancel</button>
                                             </form>
                                         <?php else: ?>
-                                            <span style="color: #7f8c8d;">—</span>
+                                            <span class="text-muted">—</span>
                                         <?php endif; ?>
                                     </td>
                                 </tr>
@@ -235,6 +236,7 @@ $time_slots = ['09:00', '10:00', '11:00', '12:00', '13:00', '14:00', '15:00', '1
                     </table>
                 </div>
             <?php endif; ?>
+            </div>
         </div>
     </div>
 

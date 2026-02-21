@@ -63,7 +63,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     <!-- Main Content -->
     <div class="container">
         <div class="form-container">
-            <h2 style="text-align: center; margin-bottom: 30px; color: #2c3e50;">Login</h2>
+            <h2 class="text-center" style="margin-bottom: 30px;">Login</h2>
 
             <?php if (!empty($error)): ?>
                 <div class="alert alert-error">
@@ -98,23 +98,23 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 <button type="submit" class="btn btn-primary btn-block">Login</button>
             </form>
 
-            <div style="margin-top: 30px; padding-top: 20px; border-top: 1px solid #ddd; text-align: center;">
-                <p style="color: #666; margin-bottom: 10px;">Don't have an account?</p>
+            <div style="margin-top: 30px; padding-top: 20px; border-top: 1px solid var(--border-color); text-align: center;">
+                <p class="text-muted" style="margin-bottom: 10px;">Don't have an account?</p>
                 <a href="register.php" class="btn btn-success btn-block">Create an Account</a>
             </div>
 
             <!-- Demo Credentials -->
-            <div style="margin-top: 30px; padding: 15px; background-color: #f9f9f9; border-radius: 5px; border-left: 4px solid #f39c12;">
-                <h4 style="color: #f39c12; margin-bottom: 10px;">📝 Demo Credentials</h4>
-                <p style="font-size: 13px; color: #666; margin: 5px 0;">
+            <div class="demo-credentials">
+                <h4>📝 Demo Credentials</h4>
+                <p>
                     <strong>Admin Account:</strong><br>
-                    Username: <code style="background: #fff; padding: 2px 6px; border-radius: 3px;">admin</code><br>
-                    Password: <code style="background: #fff; padding: 2px 6px; border-radius: 3px;">admin123</code>
+                    Username: <code>admin</code><br>
+                    Password: <code>admin123</code>
                 </p>
-                <p style="font-size: 13px; color: #666; margin: 10px 0 0 0;">
+                <p>
                     <strong>User Account:</strong><br>
-                    Username: <code style="background: #fff; padding: 2px 6px; border-radius: 3px;">user1</code><br>
-                    Password: <code style="background: #fff; padding: 2px 6px; border-radius: 3px;">user123</code>
+                    Username: <code>user1</code><br>
+                    Password: <code>user123</code>
                 </p>
             </div>
         </div>
