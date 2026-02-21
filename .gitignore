@@ -1,0 +1,44 @@
+# PHP
+*.php~
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Database
+*.sql
+*.db
+*.sqlite
+
+# Composer
+vendor/
+composer.lock
+
+# Node
+node_modules/
+npm-debug.log
+
+# Editor
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
+
+# OS
+Thumbs.db
+.DS_Store
+
+# Logs
+error_log
+access_log
+*.log
+
+# Temp files
+tmp/
+temp/
+cache/
+
+# Environment
+.env
+.env.local
+.env.*.local
