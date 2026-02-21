@@ -1,823 +1,320 @@
+/* ============================
+   CYBERPUNK NEON THEME - JavaScript
+   ============================ */
+
+// Initialize dark mode on page load
+document.addEventListener('DOMContentLoaded', function() {
+    initDarkMode();
+    initTimeSlots();
+});
+
 // ============================
 // Dark Mode Toggle
 // ============================
 
 function initDarkMode() {
     const darkModeToggle = document.getElementById('darkModeToggle');
-    const savedMode = localStorage.getItem('darkMode');
+    const body = document.body;
     
-    // Check if dark mode was previously enabled
-    if (savedMode === 'enabled') {
-        document.body.classList.add('dark-mode');
+    // Check if dark mode preference is saved
+    const darkModeEnabled = localStorage.getItem('darkMode') === 'enabled';
+    
+    if (darkModeEnabled) {
+        body.classList.add('dark-mode');
+        updateDarkModeIcon(true);
     }
     
-    // Add click listener to toggle button
+    // Add click listener
     if (darkModeToggle) {
-        darkModeToggle.addEventListener('click', function(e) {
-            e.preventDefault();
-            document.body.classList.toggle('dark-mode');
+        darkModeToggle.addEventListener('click', function() {
+            body.classList.toggle('dark-mode');
+            const isEnabled = body.classList.contains('dark-mode');
+            localStorage.setItem('darkMode', isEnabled ? 'enabled' : 'disabled');
+            updateDarkModeIcon(isEnabled);
             
-            // Save preference
-            if (document.body.classList.contains('dark-mode')) {
-                localStorage.setItem('darkMode', 'enabled');
-                this.textContent = '☀️';
-                this.title = 'Light Mode';
-            } else {
-                localStorage.setItem('darkMode', 'disabled');
-                this.textContent = '🌙';
-                this.title = 'Dark Mode';
-            }
+            // Add pulse animation
+            this.style.animation = 'none';
+            setTimeout(() => {
+                this.style.animation = '';
+            }, 10);
         });
     }
+}
+
+function updateDarkModeIcon(isDarkMode) {
+    const toggle = document.getElementById('darkModeToggle');
+    if (toggle) {
+        toggle.textContent = isDarkMode ? '☀️' : '🌙';
+    }
+}
+
+// ============================
+// Time Slots Selection
+// ============================
+
+function initTimeSlots() {
+    const timeSlots = document.querySelectorAll('.time-slots label');
+    timeSlots.forEach(label => {
+        const input = label.querySelector('input[type="radio"]');
+        if (input) {
+            input.addEventListener('change', function() {
+                timeSlots.forEach(l => l.style.borderColor = '');
+                if (this.checked) {
+                    label.style.borderColor = 'var(--neon-pink)';
+                    label.style.background = 'rgba(255, 0, 110, 0.2)';
+                    showNeonPulse(label);
+                }
+            });
+        }
+    });
+}
+
+function selectTimeSlot(element) {
+    const allSlots = document.querySelectorAll('.time-slots label');
+    allSlots.forEach(slot => {
+        slot.style.borderColor = '';
+        slot.style.background = '';
+    });
+    element.style.borderColor = 'var(--neon-pink)';
+    element.style.background = 'rgba(255, 0, 110, 0.2)';
+    showNeonPulse(element);
+}
+
+// ============================
+// Neon Effects
+// ============================
+
+function showNeonPulse(element) {
+    element.style.animation = 'none';
+    setTimeout(() => {
+        element.style.animation = 'glow 0.6s ease';
+    }, 10);
+}
+
+// Add hover glow effect to all cards
+function initCardGlows() {
+    const cards = document.querySelectorAll('.booking-form, .facility-card, .stats-card, .card');
+    cards.forEach(card => {
+        card.addEventListener('mouseenter', function() {
+            this.style.borderColor = 'var(--neon-pink)';
+            this.style.boxShadow = '0 0 30px var(--neon-pink), 0 0 40px var(--neon-blue)';
+        });
+        card.addEventListener('mouseleave', function() {
+            this.style.borderColor = '';
+            this.style.boxShadow = '';
+        });
+    });
 }
 
 // ============================
 // Form Validation
 // ============================
 
-function validateEmail(email) {
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    return emailRegex.test(email);
-}
-
-function validatePassword(password) {
-    return password.length >= 6;
-}
-
-function validateUsername(username) {
-    return username.length >= 3 && /^[a-zA-Z0-9_]+$/.test(username);
-}
-
-function validateForm(formId) {
-    const form = document.getElementById(formId);
-    if (!form) return false;
-
-    const inputs = form.querySelectorAll('[required]');
-    let isValid = true;
-
-    inputs.forEach(input => {
-        if (!input.value.trim()) {
-            showFieldError(input, 'This field is required');
-            isValid = false;
-        }
-    });
-
-    return isValid;
-}
-
-function showFieldError(input, message) {
-    const errorDiv = input.parentElement.querySelector('.error-message');
-    if (errorDiv) {
-        errorDiv.textContent = message;
-        errorDiv.style.display = 'block';
-    }
-    input.classList.add('error');
-}
-
-function clearFieldError(input) {
-    const errorDiv = input.parentElement.querySelector('.error-message');
-    if (errorDiv) {
-        errorDiv.textContent = '';
-        errorDiv.style.display = 'none';
-    }
-    input.classList.remove('error');
-}
-
-// ============================
-// Notifications with Animations
-// ============================
-
-function showNotification(message, type = 'info') {
-    const alertDiv = document.createElement('div');
-    alertDiv.className = `alert alert-${type}`;
-    alertDiv.textContent = message;
-    alertDiv.style.position = 'fixed';
-    alertDiv.style.top = '20px';
-    alertDiv.style.right = '20px';
-    alertDiv.style.zIndex = '1000';
-    alertDiv.style.maxWidth = '400px';
-    alertDiv.style.boxShadow = '0 4px 12px rgba(0,0,0,0.15)';
-    alertDiv.style.animation = 'slideInDown 0.5s ease';
-
-    document.body.appendChild(alertDiv);
-
-    setTimeout(() => {
-        alertDiv.style.animation = 'slideInDown 0.5s ease reverse';
-        setTimeout(() => {
-            alertDiv.remove();
-        }, 500);
-    }, 4000);
-}
-
-function showAlert(message, type = 'info') {
-    showNotification(message, type);
-}
-
-function confirmAction(message) {
-    return confirm(message);
-}
-
-// ============================
-// Time Slot Selection
-// ============================
-
-function initTimeSlots() {
-    const timeSlots = document.querySelectorAll('.time-slot');
-    
-    timeSlots.forEach(slot => {
-        slot.addEventListener('click', function(e) {
-            e.preventDefault();
-            if (!this.classList.contains('booked')) {
-                timeSlots.forEach(s => s.classList.remove('selected'));
-                this.classList.add('selected');
-                
-                const timeInput = document.getElementById('time_slot');
-                if (timeInput) {
-                    timeInput.value = this.textContent;
-                }
-            }
-        });
-    });
-}
-
-function selectTimeSlot(slotElement, time) {
-    if (slotElement.classList.contains('booked')) {
-        showNotification('This time slot is not available', 'warning');
-        return false;
-    }
-    
-    document.querySelectorAll('.time-slot').forEach(slot => {
-        slot.classList.remove('selected');
-    });
-    
-    slotElement.classList.add('selected');
-    document.getElementById('time_slot').value = time;
-    return true;
-}
-
-// ============================
-// Booking Functions
-// ============================
-
-function checkSlotAvailability(facilityId, bookingDate, callback) {
-    fetch('api/check_availability.php', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/x-www-form-urlencoded'
-        },
-        body: `facility_id=${facilityId}&booking_date=${bookingDate}`
-    })
-    .then(response => response.json())
-    .then(data => {
-        callback(data.available);
-    })
-    .catch(error => {
-        console.error('Error:', error);
-        showNotification('Error checking availability', 'error');
-    });
-}
-
-function submitBookingForm() {
-    const form = document.getElementById('bookingForm');
-    if (!form) return false;
-
+function validateBookingForm() {
     const facilityId = document.getElementById('facility_id').value;
     const bookingDate = document.getElementById('booking_date').value;
-    const timeSlot = document.getElementById('time_slot').value;
-    const purpose = document.getElementById('purpose').value;
-
+    const timeSlot = document.querySelector('input[name="time_slot"]:checked');
+    
     if (!facilityId || !bookingDate || !timeSlot) {
-        showNotification('Please fill all required fields', 'warning');
+        showNeonNotification('Please fill all required fields', 'error');
         return false;
     }
-
-    form.submit();
+    
     return true;
-}
-
-function cancelBooking(bookingId) {
-    if (confirmAction('Are you sure you want to cancel this booking?')) {
-        const formData = new FormData();
-        formData.append('booking_id', bookingId);
-        formData.append('action', 'cancel');
-
-        fetch('booking.php', {
-            method: 'POST',
-            body: formData
-        })
-        .then(response => response.text())
-        .then(data => {
-            showNotification('Booking cancelled successfully', 'success');
-            setTimeout(() => location.reload(), 1000);
-        })
-        .catch(error => {
-            showNotification('Error cancelling booking', 'error');
-        });
-    }
-}
-
-function rescheduleBooking(bookingId) {
-    const newDate = prompt('Enter new date (YYYY-MM-DD):');
-    if (newDate) {
-        const newTime = prompt('Enter new time (HH:MM):');
-        if (newTime) {
-            const formData = new FormData();
-            formData.append('booking_id', bookingId);
-            formData.append('action', 'reschedule');
-            formData.append('new_date', newDate);
-            formData.append('new_time', newTime);
-
-            fetch('booking.php', {
-                method: 'POST',
-                body: formData
-            })
-            .then(response => response.text())
-            .then(data => {
-                showNotification('Booking rescheduled successfully', 'success');
-                setTimeout(() => location.reload(), 1000);
-            })
-            .catch(error => {
-                showNotification('Error rescheduling booking', 'error');
-            });
-        }
-    }
-}
-
-// ============================
-// Admin Functions
-// ============================
-
-function approveBooking(bookingId) {
-    if (confirmAction('Approve this booking?')) {
-        updateBookingStatus(bookingId, 'Approved');
-    }
-}
-
-function rejectBooking(bookingId) {
-    if (confirmAction('Reject this booking?')) {
-        updateBookingStatus(bookingId, 'Rejected');
-    }
-}
-
-function updateBookingStatus(bookingId, status) {
-    const formData = new FormData();
-    formData.append('booking_id', bookingId);
-    formData.append('action', 'update_status');
-    formData.append('status', status);
-
-    fetch('admin.php', {
-        method: 'POST',
-        body: formData
-    })
-    .then(response => response.text())
-    .then(data => {
-        showNotification(`Booking ${status.toLowerCase()} successfully`, 'success');
-        setTimeout(() => location.reload(), 1000);
-    })
-    .catch(error => {
-        showNotification('Error updating booking', 'error');
-    });
-}
-
-// ============================
-// Date Utilities
-// ============================
-
-function getMinDate() {
-    const today = new Date();
-    today.setDate(today.getDate() + 1);
-    return today.toISOString().split('T')[0];
-}
-
-function setMinDate(inputId) {
-    const input = document.getElementById(inputId);
-    if (input && input.type === 'date') {
-        input.min = getMinDate();
-    }
-}
-
-function isValidDate(dateString) {
-    const date = new Date(dateString);
-    return date instanceof Date && !isNaN(date);
-}
-
-// ============================
-// Table Functions
-// ============================
-
-function filterTable(tableId, searchInput) {
-    const input = document.getElementById(searchInput);
-    const table = document.getElementById(tableId);
-    const tr = table.getElementsByTagName('tr');
-
-    input.addEventListener('keyup', () => {
-        const filter = input.value.toUpperCase();
-
-        for (let i = 1; i < tr.length; i++) {
-            const td = tr[i].getElementsByTagName('td');
-            let found = false;
-
-            for (let j = 0; j < td.length; j++) {
-                if (td[j].textContent.toUpperCase().includes(filter)) {
-                    found = true;
-                    break;
-                }
-            }
-
-            tr[i].style.display = found ? '' : 'none';
-        }
-    });
-}
-
-function sortTable(tableId, columnIndex) {
-    const table = document.getElementById(tableId);
-    let rows = Array.from(table.querySelectorAll('tbody tr'));
-    let ascending = true;
-
-    rows.sort((a, b) => {
-        const aVal = a.cells[columnIndex].textContent;
-        const bVal = b.cells[columnIndex].textContent;
-
-        if (!isNaN(aVal) && !isNaN(bVal)) {
-            return ascending ? aVal - bVal : bVal - aVal;
-        }
-
-        return ascending ? aVal.localeCompare(bVal) : bVal.localeCompare(aVal);
-    });
-
-    const tbody = table.querySelector('tbody');
-    rows.forEach(row => tbody.appendChild(row));
-}
-
-// ============================
-// Print & Export
-// ============================
-
-function printTable(tableId) {
-    const table = document.getElementById(tableId);
-    const printWindow = window.open('', '', 'height=600,width=800');
-    
-    printWindow.document.write('<html><head><title>Print Report</title>');
-    printWindow.document.write('<link rel="stylesheet" href="css/style.css">');
-    printWindow.document.write('</head><body>');
-    printWindow.document.write(table.outerHTML);
-    printWindow.document.write('</body></html>');
-    
-    printWindow.document.close();
-    setTimeout(() => {
-        printWindow.print();
-        printWindow.close();
-    }, 500);
-}
-
-function exportTableToCSV(tableId, filename = 'report.csv') {
-    const table = document.getElementById(tableId);
-    let csv = [];
-    
-    const headers = [];
-    table.querySelectorAll('thead th').forEach(th => {
-        headers.push(th.textContent);
-    });
-    csv.push(headers.join(','));
-    
-    table.querySelectorAll('tbody tr').forEach(tr => {
-        const row = [];
-        tr.querySelectorAll('td').forEach(td => {
-            row.push('"' + td.textContent.replace(/"/g, '""') + '"');
-        });
-        csv.push(row.join(','));
-    });
-    
-    const csvContent = csv.join('\n');
-    const blob = new Blob([csvContent], { type: 'text/csv' });
-    const link = document.createElement('a');
-    link.href = window.URL.createObjectURL(blob);
-    link.download = filename;
-    link.click();
-}
-
-// ============================
-// Smooth Page Load
-// ============================
-
-function addPageLoadAnimation() {
-    document.body.style.opacity = '0';
-    window.addEventListener('load', () => {
-        document.body.style.transition = 'opacity 0.5s ease';
-        document.body.style.opacity = '1';
-    });
-}
-
-// ============================
-// Document Ready
-// ============================
-
-document.addEventListener('DOMContentLoaded', function() {
-    // Initialize dark mode
-    initDarkMode();
-    
-    // Initialize date inputs
-    document.querySelectorAll('input[type="date"]').forEach(input => {
-        if (input.hasAttribute('min-today')) {
-            input.min = getMinDate();
-        }
-    });
-
-    // Initialize time slots
-    if (document.querySelectorAll('.time-slot').length > 0) {
-        initTimeSlots();
-    }
-
-    // Clear field errors on input
-    document.querySelectorAll('input, select, textarea').forEach(field => {
-        field.addEventListener('focus', function() {
-            clearFieldError(this);
-        });
-    });
-    
-    // Add smooth animations to page elements
-    const elements = document.querySelectorAll('.card, .form-container, .facility-card, .stat-card');
-    elements.forEach((el, index) => {
-        el.style.animationDelay = (index * 0.1) + 's';
-    });
-});
-
-function validatePassword(password) {
-    return password.length >= 6;
-}
-
-function validateUsername(username) {
-    return username.length >= 3 && /^[a-zA-Z0-9_]+$/.test(username);
-}
-
-function validateForm(formId) {
-    const form = document.getElementById(formId);
-    if (!form) return false;
-
-    const inputs = form.querySelectorAll('[required]');
-    let isValid = true;
-
-    inputs.forEach(input => {
-        if (!input.value.trim()) {
-            showFieldError(input, 'This field is required');
-            isValid = false;
-        }
-    });
-
-    return isValid;
-}
-
-function showFieldError(input, message) {
-    const errorDiv = input.parentElement.querySelector('.error-message');
-    if (errorDiv) {
-        errorDiv.textContent = message;
-        errorDiv.style.display = 'block';
-    }
-    input.classList.add('error');
-}
-
-function clearFieldError(input) {
-    const errorDiv = input.parentElement.querySelector('.error-message');
-    if (errorDiv) {
-        errorDiv.textContent = '';
-        errorDiv.style.display = 'none';
-    }
-    input.classList.remove('error');
 }
 
 // ============================
 // Notifications
 // ============================
 
-function showNotification(message, type = 'info') {
-    const alertDiv = document.createElement('div');
-    alertDiv.className = `alert alert-${type}`;
-    alertDiv.textContent = message;
-    alertDiv.style.position = 'fixed';
-    alertDiv.style.top = '20px';
-    alertDiv.style.right = '20px';
-    alertDiv.style.zIndex = '1000';
-    alertDiv.style.maxWidth = '400px';
-    alertDiv.style.boxShadow = '0 4px 12px rgba(0,0,0,0.1)';
-
-    document.body.appendChild(alertDiv);
-
+function showNeonNotification(message, type = 'info') {
+    const notification = document.createElement('div');
+    notification.className = `alert alert-${type}`;
+    notification.style.animation = 'slideInDown 0.5s ease';
+    notification.innerHTML = `
+        ${type === 'success' ? '✓' : type === 'error' ? '✗' : 'ℹ'} ${message}
+    `;
+    
+    const container = document.querySelector('.container');
+    if (container) {
+        container.insertBefore(notification, container.firstChild);
+    }
+    
+    // Auto-dismiss after 4 seconds
     setTimeout(() => {
-        alertDiv.remove();
+        notification.style.animation = 'slideInUp 0.5s ease';
+        setTimeout(() => {
+            notification.remove();
+        }, 500);
     }, 4000);
 }
 
-function showAlert(message, type = 'info') {
-    showNotification(message, type);
-}
-
-function confirmAction(message) {
-    return confirm(message);
-}
-
 // ============================
-// Time Slot Selection
+// Cancel Booking
 // ============================
-
-function initTimeSlots() {
-    const timeSlots = document.querySelectorAll('.time-slot');
-    
-    timeSlots.forEach(slot => {
-        slot.addEventListener('click', function() {
-            if (!this.classList.contains('booked')) {
-                timeSlots.forEach(s => s.classList.remove('selected'));
-                this.classList.add('selected');
-                
-                const timeInput = document.getElementById('time_slot');
-                if (timeInput) {
-                    timeInput.value = this.textContent;
-                }
-            }
-        });
-    });
-}
-
-function selectTimeSlot(slotElement, time) {
-    if (slotElement.classList.contains('booked')) {
-        showNotification('This time slot is not available', 'warning');
-        return false;
-    }
-    
-    document.querySelectorAll('.time-slot').forEach(slot => {
-        slot.classList.remove('selected');
-    });
-    
-    slotElement.classList.add('selected');
-    document.getElementById('time_slot').value = time;
-    return true;
-}
-
-// ============================
-// Booking Functions
-// ============================
-
-function checkSlotAvailability(facilityId, bookingDate, callback) {
-    fetch('api/check_availability.php', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/x-www-form-urlencoded'
-        },
-        body: `facility_id=${facilityId}&booking_date=${bookingDate}`
-    })
-    .then(response => response.json())
-    .then(data => {
-        callback(data.available);
-    })
-    .catch(error => {
-        console.error('Error:', error);
-        showNotification('Error checking availability', 'error');
-    });
-}
-
-function submitBookingForm() {
-    const form = document.getElementById('bookingForm');
-    if (!form) return false;
-
-    const facilityId = document.getElementById('facility_id').value;
-    const bookingDate = document.getElementById('booking_date').value;
-    const timeSlot = document.getElementById('time_slot').value;
-    const purpose = document.getElementById('purpose').value;
-
-    if (!facilityId || !bookingDate || !timeSlot) {
-        showNotification('Please fill all required fields', 'warning');
-        return false;
-    }
-
-    // Submit form
-    form.submit();
-    return true;
-}
 
 function cancelBooking(bookingId) {
-    if (confirmAction('Are you sure you want to cancel this booking?')) {
-        const formData = new FormData();
-        formData.append('booking_id', bookingId);
-        formData.append('action', 'cancel');
+    if (confirm('Are you sure you want to cancel this booking?')) {
+        const form = document.createElement('form');
+        form.method = 'POST';
+        form.innerHTML = `
+            <input type="hidden" name="action" value="cancel">
+            <input type="hidden" name="booking_id" value="${bookingId}">
+        `;
+        document.body.appendChild(form);
+        form.submit();
+    }
+}
 
-        fetch('booking.php', {
-            method: 'POST',
-            body: formData
-        })
-        .then(response => response.text())
-        .then(data => {
-            showNotification('Booking cancelled successfully', 'success');
-            setTimeout(() => location.reload(), 1000);
-        })
-        .catch(error => {
-            showNotification('Error cancelling booking', 'error');
+// ============================
+// Table Interactions
+// ============================
+
+function initTableHovers() {
+    const rows = document.querySelectorAll('.table tbody tr');
+    rows.forEach(row => {
+        row.addEventListener('mouseenter', function() {
+            this.style.background = 'rgba(0, 217, 255, 0.1)';
+            this.style.boxShadow = 'inset 0 0 20px rgba(0, 217, 255, 0.1)';
         });
-    }
-}
-
-function rescheduleBooking(bookingId) {
-    const newDate = prompt('Enter new date (YYYY-MM-DD):');
-    if (newDate) {
-        const newTime = prompt('Enter new time (HH:MM):');
-        if (newTime) {
-            const formData = new FormData();
-            formData.append('booking_id', bookingId);
-            formData.append('action', 'reschedule');
-            formData.append('new_date', newDate);
-            formData.append('new_time', newTime);
-
-            fetch('booking.php', {
-                method: 'POST',
-                body: formData
-            })
-            .then(response => response.text())
-            .then(data => {
-                showNotification('Booking rescheduled successfully', 'success');
-                setTimeout(() => location.reload(), 1000);
-            })
-            .catch(error => {
-                showNotification('Error rescheduling booking', 'error');
-            });
-        }
-    }
-}
-
-// ============================
-// Admin Functions
-// ============================
-
-function approveBooking(bookingId) {
-    if (confirmAction('Approve this booking?')) {
-        updateBookingStatus(bookingId, 'Approved');
-    }
-}
-
-function rejectBooking(bookingId) {
-    if (confirmAction('Reject this booking?')) {
-        updateBookingStatus(bookingId, 'Rejected');
-    }
-}
-
-function updateBookingStatus(bookingId, status) {
-    const formData = new FormData();
-    formData.append('booking_id', bookingId);
-    formData.append('action', 'update_status');
-    formData.append('status', status);
-
-    fetch('admin.php', {
-        method: 'POST',
-        body: formData
-    })
-    .then(response => response.text())
-    .then(data => {
-        showNotification(`Booking ${status.toLowerCase()} successfully`, 'success');
-        setTimeout(() => location.reload(), 1000);
-    })
-    .catch(error => {
-        showNotification('Error updating booking', 'error');
+        row.addEventListener('mouseleave', function() {
+            this.style.background = '';
+            this.style.boxShadow = '';
+        });
     });
 }
 
 // ============================
-// Date Utilities
+// Button Ripple Effect
 // ============================
 
-function getMinDate() {
-    const today = new Date();
-    today.setDate(today.getDate() + 1);
-    return today.toISOString().split('T')[0];
-}
-
-function setMinDate(inputId) {
-    const input = document.getElementById(inputId);
-    if (input && input.type === 'date') {
-        input.min = getMinDate();
-    }
-}
-
-function isValidDate(dateString) {
-    const date = new Date(dateString);
-    return date instanceof Date && !isNaN(date);
-}
-
-// ============================
-// Table Functions
-// ============================
-
-function filterTable(tableId, searchInput) {
-    const input = document.getElementById(searchInput);
-    const table = document.getElementById(tableId);
-    const tr = table.getElementsByTagName('tr');
-
-    input.addEventListener('keyup', () => {
-        const filter = input.value.toUpperCase();
-
-        for (let i = 1; i < tr.length; i++) {
-            const td = tr[i].getElementsByTagName('td');
-            let found = false;
-
-            for (let j = 0; j < td.length; j++) {
-                if (td[j].textContent.toUpperCase().includes(filter)) {
-                    found = true;
-                    break;
-                }
-            }
-
-            tr[i].style.display = found ? '' : 'none';
-        }
+document.querySelectorAll('.btn').forEach(button => {
+    button.addEventListener('click', function(e) {
+        const ripple = document.createElement('span');
+        const rect = this.getBoundingClientRect();
+        const size = Math.max(rect.width, rect.height);
+        const x = e.clientX - rect.left - size / 2;
+        const y = e.clientY - rect.top - size / 2;
+        
+        ripple.style.width = ripple.style.height = size + 'px';
+        ripple.style.left = x + 'px';
+        ripple.style.top = y + 'px';
+        ripple.classList.add('ripple');
+        
+        this.appendChild(ripple);
+        
+        setTimeout(() => ripple.remove(), 600);
     });
+});
+
+// ============================
+// Page Load Animations
+// ============================
+
+window.addEventListener('load', function() {
+    // Fade in page elements
+    const elements = document.querySelectorAll('.page-header, .booking-form, .facility-card, .alert');
+    elements.forEach((el, index) => {
+        el.style.opacity = '0';
+        el.style.animation = `slideInUp 0.6s ease ${index * 0.1}s forwards`;
+    });
+});
+
+// ============================
+// Filter Bookings (Admin)
+// ============================
+
+function filterBookingsButton(status) {
+    const currentUrl = new URL(window.location);
+    if (status === 'all') {
+        currentUrl.searchParams.delete('status');
+    } else {
+        currentUrl.searchParams.set('status', status);
+    }
+    window.location.href = currentUrl.toString();
 }
 
-function sortTable(tableId, columnIndex) {
-    const table = document.getElementById(tableId);
-    let rows = Array.from(table.querySelectorAll('tbody tr'));
-    let ascending = true;
+// ============================
+// Export Table to CSV
+// ============================
 
+function exportTableToCSV(filename = 'bookings.csv') {
+    const csv = [];
+    const rows = document.querySelectorAll('.table tr');
+    
+    rows.forEach(row => {
+        const cols = row.querySelectorAll('td, th');
+        const csvRow = Array.from(cols).map(col => {
+            let text = col.textContent.trim();
+            text = text.replace(/"/g, '""');
+            return `"${text}"`;
+        }).join(',');
+        csv.push(csvRow);
+    });
+    
+    downloadCSV(csv.join('\n'), filename);
+}
+
+function downloadCSV(csv, filename) {
+    const csvFile = new Blob([csv], { type: 'text/csv' });
+    const downloadLink = document.createElement('a');
+    downloadLink.href = URL.createObjectURL(csvFile);
+    downloadLink.download = filename;
+    downloadLink.click();
+}
+
+// ============================
+// Sort Table
+// ============================
+
+function sortTable(n) {
+    const table = document.querySelector('.table');
+    const rows = Array.from(table.querySelectorAll('tbody tr'));
+    
     rows.sort((a, b) => {
-        const aVal = a.cells[columnIndex].textContent;
-        const bVal = b.cells[columnIndex].textContent;
-
-        if (!isNaN(aVal) && !isNaN(bVal)) {
-            return ascending ? aVal - bVal : bVal - aVal;
-        }
-
-        return ascending ? aVal.localeCompare(bVal) : bVal.localeCompare(aVal);
+        const aVal = a.cells[n].textContent.trim();
+        const bVal = b.cells[n].textContent.trim();
+        return aVal.localeCompare(bVal);
     });
-
+    
     const tbody = table.querySelector('tbody');
     rows.forEach(row => tbody.appendChild(row));
 }
 
 // ============================
-// Print & Export
+// Input Focus Glow
 // ============================
 
-function printTable(tableId) {
-    const table = document.getElementById(tableId);
-    const printWindow = window.open('', '', 'height=600,width=800');
-    
-    printWindow.document.write('<html><head><title>Print Report</title>');
-    printWindow.document.write('<link rel="stylesheet" href="css/style.css">');
-    printWindow.document.write('</head><body>');
-    printWindow.document.write(table.outerHTML);
-    printWindow.document.write('</body></html>');
-    
-    printWindow.document.close();
-    setTimeout(() => {
-        printWindow.print();
-        printWindow.close();
-    }, 500);
-}
-
-function exportTableToCSV(tableId, filename = 'report.csv') {
-    const table = document.getElementById(tableId);
-    let csv = [];
-    
-    // Get headers
-    const headers = [];
-    table.querySelectorAll('thead th').forEach(th => {
-        headers.push(th.textContent);
-    });
-    csv.push(headers.join(','));
-    
-    // Get rows
-    table.querySelectorAll('tbody tr').forEach(tr => {
-        const row = [];
-        tr.querySelectorAll('td').forEach(td => {
-            row.push('"' + td.textContent.replace(/"/g, '""') + '"');
-        });
-        csv.push(row.join(','));
+document.querySelectorAll('input, select, textarea').forEach(input => {
+    input.addEventListener('focus', function() {
+        this.style.borderColor = 'var(--neon-pink)';
+        this.style.boxShadow = '0 0 15px var(--neon-pink), inset 0 0 10px rgba(0, 217, 255, 0.1)';
     });
     
-    // Download
-    const csvContent = csv.join('\n');
-    const blob = new Blob([csvContent], { type: 'text/csv' });
-    const link = document.createElement('a');
-    link.href = window.URL.createObjectURL(blob);
-    link.download = filename;
-    link.click();
-}
+    input.addEventListener('blur', function() {
+        this.style.borderColor = '';
+        this.style.boxShadow = '';
+    });
+});
 
 // ============================
-// Document Ready
+// Scroll Animations
 // ============================
 
-document.addEventListener('DOMContentLoaded', function() {
-    // Initialize date inputs
-    document.querySelectorAll('input[type="date"]').forEach(input => {
-        if (input.hasAttribute('min-today')) {
-            input.min = getMinDate();
+const observerOptions = {
+    threshold: 0.1,
+    rootMargin: '50px'
+};
+
+const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+        if (entry.isIntersecting) {
+            entry.target.style.animation = 'slideInUp 0.6s ease forwards';
+            observer.unobserve(entry.target);
         }
     });
+}, observerOptions);
 
-    // Initialize time slots
-    if (document.querySelectorAll('.time-slot').length > 0) {
-        initTimeSlots();
-    }
-
-    // Clear field errors on input
-    document.querySelectorAll('input, select, textarea').forEach(field => {
-        field.addEventListener('focus', function() {
-            clearFieldError(this);
-        });
-    });
+document.querySelectorAll('.booking-form, .facility-card, .stats-card').forEach(el => {
+    observer.observe(el);
 });
