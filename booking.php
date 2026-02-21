@@ -135,14 +135,14 @@ $time_slots = ['09:00', '10:00', '11:00', '12:00', '13:00', '14:00', '15:00', '1
                             <label>Available Time Slots *</label>
                             <div class="time-slots">
                                 <?php foreach ($time_slots as $slot): ?>
-                                    <label style="margin: 5px 0; cursor: pointer; padding: 0;">
-                                        <input 
-                                            type="radio" 
-                                            name="time_slot" 
-                                            value="<?php echo $slot; ?>"
-                                            required
-                                            style="margin-right: 5px;"
-                                        >
+                                    <input 
+                                        type="radio" 
+                                        id="slot_<?php echo $slot; ?>"
+                                        name="time_slot" 
+                                        value="<?php echo $slot; ?>"
+                                        required
+                                    >
+                                    <label for="slot_<?php echo $slot; ?>">
                                         <?php echo $slot; ?>
                                     </label>
                                 <?php endforeach; ?>

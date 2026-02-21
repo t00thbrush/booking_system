@@ -5,6 +5,7 @@
 document.addEventListener('DOMContentLoaded', function() {
     initDarkMode();
     initTimeSlots();
+    initSelects();
 });
 
 // ============================
@@ -14,16 +15,21 @@ document.addEventListener('DOMContentLoaded', function() {
 function initDarkMode() {
     const darkModeToggle = document.getElementById('darkModeToggle');
     const body = document.body;
+    const savedMode = localStorage.getItem('darkMode');
     
-    const darkModeEnabled = localStorage.getItem('darkMode') === 'enabled';
-    
-    if (darkModeEnabled) {
+    // Apply saved preference
+    if (savedMode === 'enabled') {
         body.classList.add('dark-mode');
         updateDarkModeIcon(true);
+    } else if (savedMode === 'disabled') {
+        body.classList.remove('dark-mode');
+        updateDarkModeIcon(false);
     }
     
+    // Add click listener
     if (darkModeToggle) {
-        darkModeToggle.addEventListener('click', function() {
+        darkModeToggle.addEventListener('click', function(e) {
+            e.preventDefault();
             body.classList.toggle('dark-mode');
             const isEnabled = body.classList.contains('dark-mode');
             localStorage.setItem('darkMode', isEnabled ? 'enabled' : 'disabled');
@@ -35,7 +41,7 @@ function initDarkMode() {
 function updateDarkModeIcon(isDarkMode) {
     const toggle = document.getElementById('darkModeToggle');
     if (toggle) {
-        toggle.textContent = isDarkMode ? '☀️' : '🌙';
+        toggle.innerHTML = isDarkMode ? '☀️' : '🌙';
     }
 }
 
@@ -44,12 +50,52 @@ function updateDarkModeIcon(isDarkMode) {
 // ============================
 
 function initTimeSlots() {
-    const timeSlots = document.querySelectorAll('.time-slots label');
-    timeSlots.forEach(label => {
-        label.addEventListener('click', function() {
-            timeSlots.forEach(l => l.style.borderColor = '');
+    const timeSlots = document.querySelectorAll('.time-slots input[type="radio"]');
+    timeSlots.forEach(radio => {
+        radio.addEventListener('change', function() {
+            const label = document.querySelector(`label[for="${this.id}"]`);
+            if (label) {
+                timeSlots.forEach(r => {
+                    const l = document.querySelector(`label[for="${r.id}"]`);
+                    if (l) {
+                        l.style.borderColor = '';
+                        l.style.background = '';
+                    }
+                });
+                label.style.borderColor = '#6366f1';
+                label.style.background = 'rgba(99, 102, 241, 0.2)';
+            }
+        });
+    });
+}
+
+// ============================
+// Select & Date Styling
+// ============================
+
+function initSelects() {
+    const selects = document.querySelectorAll('select');
+    const dateInputs = document.querySelectorAll('input[type="date"]');
+    
+    selects.forEach(select => {
+        select.addEventListener('focus', function() {
             this.style.borderColor = '#6366f1';
-            this.style.background = 'rgba(99, 102, 241, 0.1)';
+            this.style.background = 'rgba(255, 255, 255, 0.9)';
+        });
+        select.addEventListener('blur', function() {
+            this.style.borderColor = '';
+            this.style.background = '';
+        });
+    });
+    
+    dateInputs.forEach(input => {
+        input.addEventListener('focus', function() {
+            this.style.borderColor = '#6366f1';
+            this.style.background = 'rgba(255, 255, 255, 0.95)';
+        });
+        input.addEventListener('blur', function() {
+            this.style.borderColor = '';
+            this.style.background = '';
         });
     });
 }

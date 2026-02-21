@@ -9,6 +9,12 @@ if (isset($_GET['logout']) && $_GET['logout'] == 'true') {
 redirect_if_logged_in();
 
 $error = '';
+$success = '';
+
+// Check if user just registered
+if (isset($_GET['registered']) && $_GET['registered'] == 'true') {
+    $success = 'Registration successful! Please login with your credentials.';
+}
 
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $username = trim($_POST['username'] ?? '');
@@ -65,9 +71,15 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         <div class="form-container">
             <h2 class="text-center" style="margin-bottom: 30px;">Login</h2>
 
+            <?php if (!empty($success)): ?>
+                <div class="alert alert-success">
+                    ✓ <?php echo htmlspecialchars($success); ?>
+                </div>
+            <?php endif; ?>
+
             <?php if (!empty($error)): ?>
                 <div class="alert alert-error">
-                    <?php echo htmlspecialchars($error); ?>
+                    ✗ <?php echo htmlspecialchars($error); ?>
                 </div>
             <?php endif; ?>
 

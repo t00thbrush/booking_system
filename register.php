@@ -43,9 +43,9 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         } else {
             // Register new user
             if (register_user($name, $username, $email, $password)) {
-                $success = 'Registration successful! Please login with your credentials.';
-                // Clear form
-                $name = $username = $email = '';
+                // Redirect to login page after successful registration
+                header("Location: index.php?registered=true");
+                exit();
             } else {
                 $error = 'Registration failed. Please try again.';
             }
