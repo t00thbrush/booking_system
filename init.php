@@ -66,32 +66,36 @@ if ($row['count'] == 0) {
     </div>
     
     <div class="container" style="max-width: 600px; margin: 40px auto;">
-        <div style="background-color: #d4edda; padding: 20px; border-radius: 8px; border-left: 4px solid #28a745;">
-            <h2 style="color: #155724;">✓ System Setup Complete!</h2>
-            <p style="color: #155724;">Database and demo data have been initialized successfully.</p>
+        <div class="alert alert-success" style="padding: 20px;">
+            <h2 style="margin-bottom: 10px;">✓ System Setup Complete!</h2>
+            <p style="margin-bottom: 20px;">Database and demo data have been initialized successfully.</p>
             
-            <h3 style="margin-top: 30px; color: #155724;">Demo Credentials:</h3>
-            <table style="width: 100%; border-collapse: collapse; margin: 15px 0;">
-                <tr style="background-color: rgba(0,0,0,0.05);">
-                    <td style="padding: 10px; border-bottom: 1px solid #155724;"><strong>Role</strong></td>
-                    <td style="padding: 10px; border-bottom: 1px solid #155724;"><strong>Username</strong></td>
-                    <td style="padding: 10px; border-bottom: 1px solid #155724;"><strong>Password</strong></td>
-                </tr>
-                <tr>
-                    <td style="padding: 10px; border-bottom: 1px solid #d4edda;">Admin</td>
-                    <td style="padding: 10px; border-bottom: 1px solid #d4edda;"><code>admin</code></td>
-                    <td style="padding: 10px; border-bottom: 1px solid #d4edda;"><code>admin123</code></td>
-                </tr>
-                <tr>
-                    <td style="padding: 10px; border-bottom: 1px solid #d4edda;">User</td>
-                    <td style="padding: 10px; border-bottom: 1px solid #d4edda;"><code>user1</code></td>
-                    <td style="padding: 10px; border-bottom: 1px solid #d4edda;"><code>user123</code></td>
-                </tr>
-                <tr>
-                    <td style="padding: 10px;">Staff</td>
-                    <td style="padding: 10px;"><code>staff1</code></td>
-                    <td style="padding: 10px;"><code>user123</code></td>
-                </tr>
+            <h3 style="margin-top: 30px; margin-bottom: 15px;">Demo Credentials:</h3>
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Role</th>
+                        <th>Username</th>
+                        <th>Password</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Admin</td>
+                        <td><code>admin</code></td>
+                        <td><code>admin123</code></td>
+                    </tr>
+                    <tr>
+                        <td>User</td>
+                        <td><code>user1</code></td>
+                        <td><code>user123</code></td>
+                    </tr>
+                    <tr>
+                        <td>Staff</td>
+                        <td><code>staff1</code></td>
+                        <td><code>user123</code></td>
+                    </tr>
+                </tbody>
             </table>
             
             <br>
