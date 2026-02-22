@@ -85,6 +85,54 @@ if (!mysqli_query($conn, $comments_table)) {
     echo "Error creating booking_comments table: " . mysqli_error($conn);
 }
 
+// Create Audit Log table
+$audit_table = "CREATE TABLE IF NOT EXISTS audit_log (
+    log_id INT AUTO_INCREMENT PRIMARY KEY,
+    user_id INT,
+    action VARCHAR(100) NOT NULL,
+    resource_type VARCHAR(50),
+    resource_id INT,
+    details TEXT,
+    ip_address VARCHAR(45),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE SET NULL
+)";
+
+if (!mysqli_query($conn, $audit_table)) {
+    echo "Error creating audit_log table: " . mysqli_error($conn);
+}
+
+// Add amenities column to facilities if it doesn't exist
+$check_amenities = "SHOW COLUMNS FROM facilities LIKE 'amenities'";
+$result = mysqli_query($conn, $check_amenities);
+if (mysqli_num_rows($result) == 0) {
+    $alter_query = "ALTER TABLE facilities ADD COLUMN amenities TEXT DEFAULT NULL";
+    mysqli_query($conn, $alter_query);
+}
+
+// Add recurring booking columns if they don't exist
+$check_recurring = "SHOW COLUMNS FROM bookings LIKE 'is_recurring'";
+$result = mysqli_query($conn, $check_recurring);
+if (mysqli_num_rows($result) == 0) {
+    $alter_query = "ALTER TABLE bookings ADD COLUMN is_recurring BOOLEAN DEFAULT FALSE,
+                    ADD COLUMN recurring_pattern VARCHAR(50),
+                    ADD COLUMN recurring_end_date DATE,
+                    ADD COLUMN parent_booking_id INT,
+                    ADD COLUMN on_waiting_list BOOLEAN DEFAULT FALSE,
+                    ADD COLUMN waiting_list_position INT DEFAULT 0";
+    mysqli_query($conn, $alter_query);
+}
+
+// Add 2FA column to users if it doesn't exist
+$check_2fa = "SHOW COLUMNS FROM users LIKE 'two_factor_enabled'";
+$result = mysqli_query($conn, $check_2fa);
+if (mysqli_num_rows($result) == 0) {
+    $alter_query = "ALTER TABLE users ADD COLUMN two_factor_enabled BOOLEAN DEFAULT FALSE,
+                    ADD COLUMN two_factor_secret VARCHAR(100),
+                    ADD COLUMN backup_codes JSON";
+    mysqli_query($conn, $alter_query);
+}
+
 // Insert sample facilities if not exist
 $check_facilities = "SELECT COUNT(*) as count FROM facilities";
 $result = mysqli_query($conn, $check_facilities);
