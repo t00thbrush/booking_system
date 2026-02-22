@@ -307,7 +307,6 @@ $time_slots = ['09:00', '10:00', '11:00', '12:00', '13:00', '14:00', '15:00', '1
                                     </td>
                                     <td>
                                         <div style="display: flex; gap: 5px; flex-wrap: wrap;">
-                                            <button type="button" class="btn btn-primary btn-sm" onclick="openModal('commentModal<?php echo $booking['booking_id']; ?>')" title="Add/View Comments">💬</button>
                                             <?php if ($booking['status'] != 'Cancelled'): ?>
                                                 <form method="POST" action="" style="display: inline;">
                                                     <input type="hidden" name="action" value="cancel">
@@ -321,60 +320,174 @@ $time_slots = ['09:00', '10:00', '11:00', '12:00', '13:00', '14:00', '15:00', '1
                                     </td>
                                 </tr>
 
-                                <!-- Comment Modal for this booking -->
-                                <div id="commentModal<?php echo $booking['booking_id']; ?>" class="modal">
-                                    <div class="modal-content">
-                                        <div class="modal-header">
-                                            <h2>Comments & Notes</h2>
-                                            <button type="button" class="modal-close" onclick="closeModal('commentModal<?php echo $booking['booking_id']; ?>')">×</button>
-                                        </div>
-                                        <div class="modal-body">
-                                            <p style="color: #64748b; margin: 0 0 15px 0; font-size: 13px;">
-                                                <strong><?php echo htmlspecialchars($booking['facility_name']); ?></strong><br>
-                                                <?php echo date('M d, Y', strtotime($booking['booking_date'])); ?> at <?php echo $booking['time_slot']; ?>
-                                            </p>
-
-                                            <!-- Comments List -->
-                                            <div class="comments-list">
-                                                <?php 
-                                                $comments = get_booking_comments($booking['booking_id']);
-                                                if (empty($comments)): 
-                                                ?>
-                                                    <p class="text-muted" style="text-align: center; padding: 20px 0; margin: 0;">
-                                                        No comments yet. Be the first to add one!
-                                                    </p>
-                                                <?php else: 
-                                                    foreach ($comments as $comment):
-                                                ?>
-                                                    <div class="comment-item">
-                                                        <div class="comment-author">
-                                                            <?php echo htmlspecialchars($comment['name']); ?>
-                                                            <span class="comment-time"><?php echo date('M d, h:i A', strtotime($comment['created_at'])); ?></span>
-                                                        </div>
-                                                        <div class="comment-text"><?php echo htmlspecialchars($comment['comment_text']); ?></div>
-                                                    </div>
-                                                <?php endforeach; ?>
-                                                <?php endif; ?>
-                                            </div>
-
-                                            <!-- Add Comment Form -->
-                                            <form method="POST" action="">
-                                                <input type="hidden" name="action" value="add_comment">
-                                                <input type="hidden" name="booking_id" value="<?php echo $booking['booking_id']; ?>">
-                                                <textarea name="comment_text" placeholder="Add a comment or note..." style="width: 100%; padding: 10px; border: 1px solid #cbd5e1; border-radius: 6px; font-family: inherit; resize: vertical; min-height: 80px;" required></textarea>
-                                                <div class="modal-footer" style="margin-top: 15px;">
-                                                    <button type="button" class="btn btn-secondary" onclick="closeModal('commentModal<?php echo $booking['booking_id']; ?>')">Close</button>
-                                                    <button type="submit" class="btn btn-primary">Add Comment</button>
-                                                </div>
-                                            </form>
-                                        </div>
-                                    </div>
-                                </div>
                             <?php endforeach; ?>
                         </tbody>
                     </table>
                 </div>
             <?php endif; ?>
+
+            <!-- Collapsed Comments & Discussion Section -->
+            <div style="margin-top: 40px; border-top: 1px solid var(--border-color); padding-top: 30px;">
+                <div class="comments-section-header" onclick="toggleCommentsSection()" style="
+                    cursor: pointer;
+                    display: flex;
+                    align-items: center;
+                    gap: 10px;
+                    padding: 15px;
+                    background: rgba(255,255,255,0.05);
+                    border: 1px solid var(--border-color);
+                    border-radius: 8px;
+                    user-select: none;
+                    transition: all 0.3s ease;
+                ">
+                    <span id="commentsSectionToggle" style="font-size: 18px; transition: transform 0.3s ease;">▶</span>
+                    <h3 style="margin: 0; font-size: 16px; color: var(--text-color);">💬 Comments & Discussion</h3>
+                    <span style="margin-left: auto; font-size: 12px; color: #64748b;">
+                        <?php 
+                        $total_comments = 0;
+                        foreach ($user_bookings as $booking) {
+                            $total_comments += get_comment_count($booking['booking_id']);
+                        }
+                        echo $total_comments > 0 ? $total_comments . ' comment' . ($total_comments != 1 ? 's' : '') : 'No comments yet';
+                        ?>
+                    </span>
+                </div>
+
+                <div id="commentsSectionContent" style="display: none; padding: 20px; background: rgba(255,255,255,0.02); border: 1px solid var(--border-color); border-top: none; border-radius: 0 0 8px 8px;">
+                    
+                    <!-- Facility Selector -->
+                    <div style="margin-bottom: 20px;">
+                        <label for="commentsFilterFacility" style="display: block; margin-bottom: 8px; color: #64748b; font-size: 13px; font-weight: 500;">Select Facility to View Comments:</label>
+                        <select id="commentsFilterFacility" onchange="filterCommentsByFacility()" style="
+                            width: 100%;
+                            padding: 10px 12px;
+                            border: 1px solid var(--border-color);
+                            border-radius: 6px;
+                            background: rgba(255,255,255,0.05);
+                            color: var(--text-color);
+                            font-family: inherit;
+                            cursor: pointer;
+                        ">
+                            <option value="">-- All Facilities --</option>
+                            <?php foreach ($facilities as $facility): 
+                                // Only show facilities user has bookings for
+                                $has_booking = false;
+                                foreach ($user_bookings as $booking) {
+                                    if ($booking['facility_id'] == $facility['facility_id']) {
+                                        $has_booking = true;
+                                        break;
+                                    }
+                                }
+                                if ($has_booking):
+                            ?>
+                                <option value="<?php echo $facility['facility_id']; ?>">
+                                    <?php echo htmlspecialchars($facility['facility_name']); ?>
+                                </option>
+                            <?php 
+                                endif;
+                            endforeach; 
+                            ?>
+                        </select>
+                    </div>
+
+                    <!-- Comments Display Area -->
+                    <div id="commentsDisplayArea">
+                        <div class="comments-list" style="max-height: 500px; overflow-y: auto;">
+                            <?php
+                            // Display all comments from user's bookings
+                            $all_comments_with_bookings = [];
+                            foreach ($user_bookings as $booking) {
+                                $comments = get_booking_comments($booking['booking_id']);
+                                foreach ($comments as $comment) {
+                                    $comment['booking_id'] = $booking['booking_id'];
+                                    $comment['facility_id'] = $booking['facility_id'];
+                                    $comment['facility_name'] = $booking['facility_name'];
+                                    $comment['booking_date'] = $booking['booking_date'];
+                                    $comment['time_slot'] = $booking['time_slot'];
+                                    $all_comments_with_bookings[] = $comment;
+                                }
+                            }
+
+                            // Sort by date descending
+                            usort($all_comments_with_bookings, function($a, $b) {
+                                return strtotime($b['created_at']) - strtotime($a['created_at']);
+                            });
+
+                            if (empty($all_comments_with_bookings)):
+                            ?>
+                                <p class="text-muted" style="text-align: center; padding: 30px 0; margin: 0;">
+                                    No comments yet. Add a comment to your bookings to start the discussion!
+                                </p>
+                            <?php else: ?>
+                                <?php foreach ($all_comments_with_bookings as $comment): ?>
+                                    <div class="comment-item" data-facility-id="<?php echo $comment['facility_id']; ?>" style="
+                                        padding: 15px;
+                                        margin-bottom: 15px;
+                                        background: rgba(255,255,255,0.02);
+                                        border: 1px solid var(--border-color);
+                                        border-radius: 6px;
+                                        transition: all 0.3s ease;
+                                    ">
+                                        <div style="margin-bottom: 10px; font-size: 13px; color: #64748b;">
+                                            <strong><?php echo htmlspecialchars($comment['facility_name']); ?></strong>
+                                            <br>
+                                            <?php echo date('M d, Y', strtotime($comment['booking_date'])); ?> at <?php echo $comment['time_slot']; ?>
+                                        </div>
+                                        <div class="comment-author" style="margin-bottom: 8px;">
+                                            <?php echo htmlspecialchars($comment['name']); ?>
+                                            <span class="comment-time"><?php echo date('M d, h:i A', strtotime($comment['created_at'])); ?></span>
+                                        </div>
+                                        <div class="comment-text"><?php echo htmlspecialchars($comment['comment_text']); ?></div>
+                                    </div>
+                                <?php endforeach; ?>
+                            <?php endif; ?>
+                        </div>
+                    </div>
+
+                    <!-- Add Comment Form -->
+                    <div style="margin-top: 20px; padding-top: 20px; border-top: 1px solid var(--border-color);">
+                        <h4 style="margin: 0 0 15px 0; color: var(--text-color);">Add a Comment</h4>
+                        <form method="POST" action="">
+                            <input type="hidden" name="action" value="add_comment">
+                            
+                            <div style="margin-bottom: 15px;">
+                                <label for="commentBookingSelect" style="display: block; margin-bottom: 8px; color: #64748b; font-size: 13px; font-weight: 500;">Select Booking to Comment On:</label>
+                                <select id="commentBookingSelect" name="booking_id" required style="
+                                    width: 100%;
+                                    padding: 10px 12px;
+                                    border: 1px solid var(--border-color);
+                                    border-radius: 6px;
+                                    background: rgba(255,255,255,0.05);
+                                    color: var(--text-color);
+                                    font-family: inherit;
+                                    cursor: pointer;
+                                ">
+                                    <option value="">-- Select a Booking --</option>
+                                    <?php foreach ($user_bookings as $booking): ?>
+                                        <option value="<?php echo $booking['booking_id']; ?>">
+                                            <?php echo htmlspecialchars($booking['facility_name']); ?> - <?php echo date('M d, Y', strtotime($booking['booking_date'])); ?> at <?php echo $booking['time_slot']; ?>
+                                        </option>
+                                    <?php endforeach; ?>
+                                </select>
+                            </div>
+
+                            <textarea name="comment_text" placeholder="Add a comment or note..." required style="
+                                width: 100%;
+                                padding: 12px;
+                                border: 1px solid var(--border-color);
+                                border-radius: 6px;
+                                background: rgba(255,255,255,0.05);
+                                color: var(--text-color);
+                                font-family: inherit;
+                                resize: vertical;
+                                min-height: 100px;
+                            "></textarea>
+
+                            <button type="submit" class="btn btn-primary" style="margin-top: 15px;">Post Comment</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
             </div>
         </div>
     </div>

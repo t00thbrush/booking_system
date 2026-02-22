@@ -222,3 +222,57 @@ document.addEventListener('keydown', function(event) {
         });
     }
 });
+
+// ============================
+// Comments Section - Collapse/Expand
+// ============================
+
+function toggleCommentsSection() {
+    const content = document.getElementById('commentsSectionContent');
+    const toggle = document.getElementById('commentsSectionToggle');
+    
+    if (content) {
+        const isVisible = content.style.display !== 'none';
+        content.style.display = isVisible ? 'none' : 'block';
+        toggle.style.transform = isVisible ? 'rotate(0deg)' : 'rotate(90deg)';
+        
+        // Save preference
+        localStorage.setItem('commentsExpanded', !isVisible ? 'true' : 'false');
+    }
+}
+
+// Initialize comments section state
+document.addEventListener('DOMContentLoaded', function() {
+    const commentsExpanded = localStorage.getItem('commentsExpanded') === 'true';
+    if (commentsExpanded) {
+        const content = document.getElementById('commentsSectionContent');
+        const toggle = document.getElementById('commentsSectionToggle');
+        if (content) {
+            content.style.display = 'block';
+            toggle.style.transform = 'rotate(90deg)';
+        }
+    }
+});
+
+// ============================
+// Filter Comments by Facility
+// ============================
+
+function filterCommentsByFacility() {
+    const facilitySelect = document.getElementById('commentsFilterFacility');
+    const selectedFacilityId = facilitySelect.value;
+    const commentItems = document.querySelectorAll('.comment-item[data-facility-id]');
+    
+    if (selectedFacilityId === '') {
+        // Show all comments
+        commentItems.forEach(item => {
+            item.style.display = 'block';
+        });
+    } else {
+        // Show only comments for selected facility
+        commentItems.forEach(item => {
+            const itemFacilityId = item.getAttribute('data-facility-id');
+            item.style.display = itemFacilityId === selectedFacilityId ? 'block' : 'none';
+        });
+    }
+}
