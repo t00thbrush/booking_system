@@ -53,6 +53,24 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         } else {
             $error = 'Unauthorized action';
         }
+    } elseif ($action == 'add_comment') {
+        $booking_id = (int)($_POST['booking_id'] ?? 0);
+        $comment_text = trim($_POST['comment_text'] ?? '');
+        $booking = get_booking($booking_id);
+
+        if ($booking && $booking['user_id'] == $_SESSION['user_id']) {
+            if (!empty($comment_text)) {
+                if (add_comment($booking_id, $_SESSION['user_id'], $comment_text)) {
+                    $message = 'Comment added successfully';
+                } else {
+                    $error = 'Error adding comment';
+                }
+            } else {
+                $error = 'Comment cannot be empty';
+            }
+        } else {
+            $error = 'Unauthorized action';
+        }
     }
 }
 
@@ -288,17 +306,70 @@ $time_slots = ['09:00', '10:00', '11:00', '12:00', '13:00', '14:00', '15:00', '1
                                         </span>
                                     </td>
                                     <td>
-                                        <?php if ($booking['status'] != 'Cancelled'): ?>
-                                            <form method="POST" action="" style="display: inline;">
-                                                <input type="hidden" name="action" value="cancel">
-                                                <input type="hidden" name="booking_id" value="<?php echo $booking['booking_id']; ?>">
-                                                <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Cancel this booking?')">Cancel</button>
-                                            </form>
-                                        <?php else: ?>
-                                            <span class="text-muted">—</span>
-                                        <?php endif; ?>
+                                        <div style="display: flex; gap: 5px; flex-wrap: wrap;">
+                                            <button type="button" class="btn btn-primary btn-sm" onclick="openModal('commentModal<?php echo $booking['booking_id']; ?>')" title="Add/View Comments">💬</button>
+                                            <?php if ($booking['status'] != 'Cancelled'): ?>
+                                                <form method="POST" action="" style="display: inline;">
+                                                    <input type="hidden" name="action" value="cancel">
+                                                    <input type="hidden" name="booking_id" value="<?php echo $booking['booking_id']; ?>">
+                                                    <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Cancel this booking?')">Cancel</button>
+                                                </form>
+                                            <?php else: ?>
+                                                <span class="text-muted">—</span>
+                                            <?php endif; ?>
+                                        </div>
                                     </td>
                                 </tr>
+
+                                <!-- Comment Modal for this booking -->
+                                <div id="commentModal<?php echo $booking['booking_id']; ?>" class="modal">
+                                    <div class="modal-content">
+                                        <div class="modal-header">
+                                            <h2>Comments & Notes</h2>
+                                            <button type="button" class="modal-close" onclick="closeModal('commentModal<?php echo $booking['booking_id']; ?>')">×</button>
+                                        </div>
+                                        <div class="modal-body">
+                                            <p style="color: #64748b; margin: 0 0 15px 0; font-size: 13px;">
+                                                <strong><?php echo htmlspecialchars($booking['facility_name']); ?></strong><br>
+                                                <?php echo date('M d, Y', strtotime($booking['booking_date'])); ?> at <?php echo $booking['time_slot']; ?>
+                                            </p>
+
+                                            <!-- Comments List -->
+                                            <div class="comments-list">
+                                                <?php 
+                                                $comments = get_booking_comments($booking['booking_id']);
+                                                if (empty($comments)): 
+                                                ?>
+                                                    <p class="text-muted" style="text-align: center; padding: 20px 0; margin: 0;">
+                                                        No comments yet. Be the first to add one!
+                                                    </p>
+                                                <?php else: 
+                                                    foreach ($comments as $comment):
+                                                ?>
+                                                    <div class="comment-item">
+                                                        <div class="comment-author">
+                                                            <?php echo htmlspecialchars($comment['name']); ?>
+                                                            <span class="comment-time"><?php echo date('M d, h:i A', strtotime($comment['created_at'])); ?></span>
+                                                        </div>
+                                                        <div class="comment-text"><?php echo htmlspecialchars($comment['comment_text']); ?></div>
+                                                    </div>
+                                                <?php endforeach; ?>
+                                                <?php endif; ?>
+                                            </div>
+
+                                            <!-- Add Comment Form -->
+                                            <form method="POST" action="">
+                                                <input type="hidden" name="action" value="add_comment">
+                                                <input type="hidden" name="booking_id" value="<?php echo $booking['booking_id']; ?>">
+                                                <textarea name="comment_text" placeholder="Add a comment or note..." style="width: 100%; padding: 10px; border: 1px solid #cbd5e1; border-radius: 6px; font-family: inherit; resize: vertical; min-height: 80px;" required></textarea>
+                                                <div class="modal-footer" style="margin-top: 15px;">
+                                                    <button type="button" class="btn btn-secondary" onclick="closeModal('commentModal<?php echo $booking['booking_id']; ?>')">Close</button>
+                                                    <button type="submit" class="btn btn-primary">Add Comment</button>
+                                                </div>
+                                            </form>
+                                        </div>
+                                    </div>
+                                </div>
                             <?php endforeach; ?>
                         </tbody>
                     </table>

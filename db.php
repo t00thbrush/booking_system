@@ -70,6 +70,21 @@ if (!mysqli_query($conn, $bookings_table)) {
     echo "Error creating bookings table: " . mysqli_error($conn);
 }
 
+// Create Comments table for booking discussions
+$comments_table = "CREATE TABLE IF NOT EXISTS booking_comments (
+    comment_id INT AUTO_INCREMENT PRIMARY KEY,
+    booking_id INT NOT NULL,
+    user_id INT NOT NULL,
+    comment_text TEXT NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (booking_id) REFERENCES bookings(booking_id) ON DELETE CASCADE,
+    FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE
+)";
+
+if (!mysqli_query($conn, $comments_table)) {
+    echo "Error creating booking_comments table: " . mysqli_error($conn);
+}
+
 // Insert sample facilities if not exist
 $check_facilities = "SELECT COUNT(*) as count FROM facilities";
 $result = mysqli_query($conn, $check_facilities);

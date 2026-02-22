@@ -318,4 +318,38 @@ function get_all_users() {
     $result = mysqli_query($conn, $query);
     return mysqli_fetch_all($result, MYSQLI_ASSOC);
 }
+
+// ============================
+// Booking Comments Functions
+// ============================
+
+function add_comment($booking_id, $user_id, $comment_text) {
+    global $conn;
+    $booking_id = (int)$booking_id;
+    $user_id = (int)$user_id;
+    $comment_text = mysqli_real_escape_string($conn, $comment_text);
+    
+    $query = "INSERT INTO booking_comments (booking_id, user_id, comment_text) VALUES ($booking_id, $user_id, '$comment_text')";
+    return mysqli_query($conn, $query);
+}
+
+function get_booking_comments($booking_id) {
+    global $conn;
+    $booking_id = (int)$booking_id;
+    $query = "SELECT bc.*, u.name, u.username FROM booking_comments bc 
+              JOIN users u ON bc.user_id = u.user_id 
+              WHERE bc.booking_id = $booking_id 
+              ORDER BY bc.created_at DESC";
+    $result = mysqli_query($conn, $query);
+    return mysqli_fetch_all($result, MYSQLI_ASSOC);
+}
+
+function get_comment_count($booking_id) {
+    global $conn;
+    $booking_id = (int)$booking_id;
+    $query = "SELECT COUNT(*) as count FROM booking_comments WHERE booking_id = $booking_id";
+    $result = mysqli_query($conn, $query);
+    $data = mysqli_fetch_assoc($result);
+    return $data['count'];
+}
 ?>
