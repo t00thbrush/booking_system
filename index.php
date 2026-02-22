@@ -21,9 +21,9 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $password = $_POST['password'] ?? '';
 
     if (empty($username)) {
-        $error = 'Username is required';
+        $error = 'Enter the username.';
     } elseif (empty($password)) {
-        $error = 'Password is required';
+        $error = 'Enter the password.';
     } else {
         if (login_user($username, $password)) {
             if (is_admin()) {
@@ -33,7 +33,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             }
             exit();
         } else {
-            $error = 'Invalid username or password';
+            $error = 'Username or Password is incorrect.';
         }
     }
 }
@@ -111,13 +111,13 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             </form>
 
             <div style="margin-top: 30px; padding-top: 20px; border-top: 1px solid var(--border-color); text-align: center;">
-                <p class="text-muted" style="margin-bottom: 10px;">Don't have an account?</p>
-                <a href="register.php" class="btn btn-success btn-block">Create an Account</a>
+                <p class="text-muted" style="margin-bottom: 10px;">No account?</p>
+                <a href="register.php" class="btn btn-success btn-block">Register Now</a>
             </div>
 
             <!-- Demo Credentials -->
             <div class="demo-credentials">
-                <h4>📝 Demo Credentials</h4>
+                <h4>📝 Demo users and Admins.</h4>
                 <p>
                     <strong>Admin Account:</strong><br>
                     Username: <code>admin</code><br>

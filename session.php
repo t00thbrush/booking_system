@@ -1,6 +1,7 @@
 <?php
 session_start();
 require_once 'db.php';
+require_once 'email.php';
 
 function is_logged_in() {
     return isset($_SESSION['user_id']);
@@ -112,7 +113,40 @@ function create_booking($user_id, $facility_id, $booking_date, $time_slot, $purp
     $time_slot = mysqli_real_escape_string($conn, $time_slot);
     $purpose = mysqli_real_escape_string($conn, $purpose);
     $query = "INSERT INTO bookings (user_id, facility_id, booking_date, time_slot, purpose) VALUES ($user_id, $facility_id, '$booking_date', '$time_slot', '$purpose')";
-    return mysqli_query($conn, $query);
+    
+    if (mysqli_query($conn, $query)) {
+        // Get the booking ID
+        $booking_id = mysqli_insert_id($conn);
+        
+        // Get user and facility details for email
+        $user = get_user($user_id);
+        $facility = get_facility($facility_id);
+        
+        // Send confirmation email to user
+        send_booking_confirmation_email(
+            $user['email'],
+            $user['name'],
+            $booking_id,
+            $facility['facility_name'],
+            $booking_date,
+            $time_slot,
+            $purpose
+        );
+        
+        // Send admin notification
+        send_new_booking_admin_email(
+            $user['name'],
+            $user['email'],
+            $booking_id,
+            $facility['facility_name'],
+            $booking_date,
+            $time_slot,
+            $purpose
+        );
+        
+        return true;
+    }
+    return false;
 }
 
 function get_user_bookings($user_id) {
@@ -140,7 +174,37 @@ function update_booking_status($booking_id, $status) {
     $booking_id = (int)$booking_id;
     $status = mysqli_real_escape_string($conn, $status);
     $query = "UPDATE bookings SET status = '$status' WHERE booking_id = $booking_id";
-    return mysqli_query($conn, $query);
+    
+    if (mysqli_query($conn, $query)) {
+        // Get booking, user and facility details for email
+        $booking = get_booking($booking_id);
+        $user = get_user($booking['user_id']);
+        $facility = get_facility($booking['facility_id']);
+        
+        // Send appropriate email based on status
+        if ($status == 'Approved') {
+            send_booking_approval_email(
+                $user['email'],
+                $user['name'],
+                $booking_id,
+                $facility['facility_name'],
+                $booking['booking_date'],
+                $booking['time_slot']
+            );
+        } elseif ($status == 'Rejected') {
+            send_booking_rejection_email(
+                $user['email'],
+                $user['name'],
+                $booking_id,
+                $facility['facility_name'],
+                $booking['booking_date'],
+                $booking['time_slot']
+            );
+        }
+        
+        return true;
+    }
+    return false;
 }
 
 function cancel_booking($booking_id) {
