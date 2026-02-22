@@ -12,6 +12,13 @@ $facilities = get_facilities();
 $message = '';
 $error = '';
 
+// Handle search/filter
+$search_facility = $_GET['search_facility'] ?? '';
+$search_status = $_GET['search_status'] ?? '';
+$search_date_from = $_GET['search_date_from'] ?? '';
+$search_date_to = $_GET['search_date_to'] ?? '';
+$search_text = $_GET['search_text'] ?? '';
+
 // Handle booking actions
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $action = $_POST['action'] ?? '';
@@ -49,7 +56,19 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     }
 }
 
-$user_bookings = get_user_bookings($_SESSION['user_id']);
+// Get filtered bookings
+if (!empty($search_facility) || !empty($search_status) || !empty($search_date_from) || !empty($search_date_to) || !empty($search_text)) {
+    $user_bookings = search_user_bookings(
+        $_SESSION['user_id'],
+        !empty($search_facility) ? $search_facility : null,
+        !empty($search_status) ? $search_status : null,
+        !empty($search_date_from) ? $search_date_from : null,
+        !empty($search_date_to) ? $search_date_to : null,
+        !empty($search_text) ? $search_text : null
+    );
+} else {
+    $user_bookings = get_user_bookings($_SESSION['user_id']);
+}
 
 // Time slots available
 $time_slots = ['09:00', '10:00', '11:00', '12:00', '13:00', '14:00', '15:00', '16:00', '17:00', '18:00'];
@@ -190,9 +209,58 @@ $time_slots = ['09:00', '10:00', '11:00', '12:00', '13:00', '14:00', '15:00', '1
             <div class="card-body">
             <h2 style="margin-bottom: 20px;">My Bookings</h2>
 
+            <!-- Search & Filter Form -->
+            <div style="background: rgba(99, 102, 241, 0.05); padding: 20px; border-radius: 8px; margin-bottom: 20px; border-left: 3px solid #6366f1;">
+                <h3 style="margin-top: 0; color: #1e293b; font-size: 16px;">🔍 Search & Filter</h3>
+                <form method="GET" action="booking.php" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px;">
+                    <div>
+                        <label style="display: block; font-size: 13px; font-weight: 600; color: #64748b; margin-bottom: 5px;">Facility</label>
+                        <select name="search_facility" style="width: 100%; padding: 8px; border: 1px solid #cbd5e1; border-radius: 6px; background: white;">
+                            <option value="">All Facilities</option>
+                            <?php foreach ($facilities as $facility): ?>
+                                <option value="<?php echo $facility['facility_id']; ?>" <?php echo $search_facility == $facility['facility_id'] ? 'selected' : ''; ?>>
+                                    <?php echo htmlspecialchars($facility['facility_name']); ?>
+                                </option>
+                            <?php endforeach; ?>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label style="display: block; font-size: 13px; font-weight: 600; color: #64748b; margin-bottom: 5px;">Status</label>
+                        <select name="search_status" style="width: 100%; padding: 8px; border: 1px solid #cbd5e1; border-radius: 6px; background: white;">
+                            <option value="">All Statuses</option>
+                            <option value="Pending" <?php echo $search_status == 'Pending' ? 'selected' : ''; ?>>Pending</option>
+                            <option value="Approved" <?php echo $search_status == 'Approved' ? 'selected' : ''; ?>>Approved</option>
+                            <option value="Rejected" <?php echo $search_status == 'Rejected' ? 'selected' : ''; ?>>Rejected</option>
+                            <option value="Cancelled" <?php echo $search_status == 'Cancelled' ? 'selected' : ''; ?>>Cancelled</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label style="display: block; font-size: 13px; font-weight: 600; color: #64748b; margin-bottom: 5px;">From Date</label>
+                        <input type="date" name="search_date_from" value="<?php echo htmlspecialchars($search_date_from); ?>" style="width: 100%; padding: 8px; border: 1px solid #cbd5e1; border-radius: 6px;">
+                    </div>
+
+                    <div>
+                        <label style="display: block; font-size: 13px; font-weight: 600; color: #64748b; margin-bottom: 5px;">To Date</label>
+                        <input type="date" name="search_date_to" value="<?php echo htmlspecialchars($search_date_to); ?>" style="width: 100%; padding: 8px; border: 1px solid #cbd5e1; border-radius: 6px;">
+                    </div>
+
+                    <div>
+                        <label style="display: block; font-size: 13px; font-weight: 600; color: #64748b; margin-bottom: 5px;">Search Text</label>
+                        <input type="text" name="search_text" placeholder="Search purpose, facility..." value="<?php echo htmlspecialchars($search_text); ?>" style="width: 100%; padding: 8px; border: 1px solid #cbd5e1; border-radius: 6px;">
+                    </div>
+
+                    <div style="display: flex; gap: 10px; align-items: flex-end;">
+                        <button type="submit" style="background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%); color: white; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer; flex: 1;">🔍 Search</button>
+                        <a href="booking.php" style="background: #e2e8f0; color: #1e293b; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer; text-decoration: none; text-align: center;">Reset</a>
+                    </div>
+                </form>
+            </div>
+
             <?php if (empty($user_bookings)): ?>
                 <p class="text-muted" style="text-align: center; padding: 40px 0;">
-                    No bookings yet. <a href="#" onclick="document.querySelector('[name=facility_id]').focus();" style="color: var(--primary-color);">Book a facility now!</a>
+                    No bookings found. <a href="#" onclick="document.querySelector('[name=facility_id]').focus();" style="color: var(--primary-color);">Book a facility now!</a>
                 </p>
             <?php else: ?>
                 <div style="overflow-x: auto;">

@@ -225,4 +225,97 @@ function get_booking_stats() {
     $result = mysqli_query($conn, $query);
     return mysqli_fetch_assoc($result);
 }
+
+// ============================
+// Search & Filter Functions
+// ============================
+
+function search_user_bookings($user_id, $facility_id = null, $status = null, $date_from = null, $date_to = null, $search_text = null) {
+    global $conn;
+    $user_id = (int)$user_id;
+    
+    $query = "SELECT b.*, f.facility_name FROM bookings b 
+              JOIN facilities f ON b.facility_id = f.facility_id 
+              WHERE b.user_id = $user_id";
+    
+    if (!empty($facility_id) && $facility_id != '') {
+        $facility_id = (int)$facility_id;
+        $query .= " AND b.facility_id = $facility_id";
+    }
+    
+    if (!empty($status) && $status != '') {
+        $status = mysqli_real_escape_string($conn, $status);
+        $query .= " AND b.status = '$status'";
+    }
+    
+    if (!empty($date_from)) {
+        $date_from = mysqli_real_escape_string($conn, $date_from);
+        $query .= " AND b.booking_date >= '$date_from'";
+    }
+    
+    if (!empty($date_to)) {
+        $date_to = mysqli_real_escape_string($conn, $date_to);
+        $query .= " AND b.booking_date <= '$date_to'";
+    }
+    
+    if (!empty($search_text)) {
+        $search_text = '%' . mysqli_real_escape_string($conn, $search_text) . '%';
+        $query .= " AND (b.purpose LIKE '$search_text' OR f.facility_name LIKE '$search_text')";
+    }
+    
+    $query .= " ORDER BY b.booking_date DESC";
+    $result = mysqli_query($conn, $query);
+    return mysqli_fetch_all($result, MYSQLI_ASSOC);
+}
+
+function search_all_bookings($facility_id = null, $status = null, $user_id = null, $date_from = null, $date_to = null, $search_text = null) {
+    global $conn;
+    
+    $query = "SELECT b.*, u.name as user_name, u.email, f.facility_name 
+              FROM bookings b 
+              JOIN users u ON b.user_id = u.user_id 
+              JOIN facilities f ON b.facility_id = f.facility_id 
+              WHERE 1=1";
+    
+    if (!empty($facility_id) && $facility_id != '') {
+        $facility_id = (int)$facility_id;
+        $query .= " AND b.facility_id = $facility_id";
+    }
+    
+    if (!empty($status) && $status != '') {
+        $status = mysqli_real_escape_string($conn, $status);
+        $query .= " AND b.status = '$status'";
+    }
+    
+    if (!empty($user_id) && $user_id != '') {
+        $user_id = (int)$user_id;
+        $query .= " AND b.user_id = $user_id";
+    }
+    
+    if (!empty($date_from)) {
+        $date_from = mysqli_real_escape_string($conn, $date_from);
+        $query .= " AND b.booking_date >= '$date_from'";
+    }
+    
+    if (!empty($date_to)) {
+        $date_to = mysqli_real_escape_string($conn, $date_to);
+        $query .= " AND b.booking_date <= '$date_to'";
+    }
+    
+    if (!empty($search_text)) {
+        $search_text = '%' . mysqli_real_escape_string($conn, $search_text) . '%';
+        $query .= " AND (b.purpose LIKE '$search_text' OR f.facility_name LIKE '$search_text' OR u.name LIKE '$search_text' OR u.email LIKE '$search_text')";
+    }
+    
+    $query .= " ORDER BY b.booking_date DESC";
+    $result = mysqli_query($conn, $query);
+    return mysqli_fetch_all($result, MYSQLI_ASSOC);
+}
+
+function get_all_users() {
+    global $conn;
+    $query = "SELECT user_id, name, email FROM users WHERE role IN ('External', 'Staff') ORDER BY name";
+    $result = mysqli_query($conn, $query);
+    return mysqli_fetch_all($result, MYSQLI_ASSOC);
+}
 ?>
