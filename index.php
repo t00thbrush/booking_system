@@ -45,12 +45,14 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login - Online Booking System</title>
     <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/loot_theme.css">
 </head>
 <body>
     <div class="cinematic-bg">
         <div class="float-blob blue"></div>
         <div class="float-blob purple"></div>
     </div>
+    <div class="universe-background"></div>
     <!-- Navigation -->
     <nav>
         <div class="container">

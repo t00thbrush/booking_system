@@ -1,0 +1,57 @@
+/* Looted theme (trimmed/adapted) */
+@font-face{font-family:Inter;src:local('Inter'), local('Inter Var');font-weight:100 900;font-style:normal;font-display:swap}
+:root{--prabath-green:#00ff87;--primary:#24e046;--bg-dark:#090a0a;--glass-bg:rgba(18,28,22,0.25);--glass-border:rgba(255,255,255,0.18);--text-primary:#e6f3ec}
+
+/* top-level panel and cards */
+.top-level-panel{background:linear-gradient(180deg,#1f1f1f,#141414);border:1px solid #2e2e2e;padding:1rem;border-radius:12px}
+.app-card{border-radius:12px;border:1px solid #383838;background:radial-gradient(circle at 0 0,#ffffff0f,#0000 25%),radial-gradient(circle at 100% 0,#ffffff0f,#0000 25%),linear-gradient(180deg,#0f0f0f,#050505);padding:1rem}
+
+.shimmer{font-weight:700;background:linear-gradient(90deg,#0000,var(--prabath-green),#0000);background-size:200% 100%;-webkit-background-clip:text;background-clip:text;color:transparent;animation:shimmer 8s linear infinite}
+@keyframes shimmer{0%{background-position:-200% 0}to{background-position:200% 0}}
+
+.form-input{width:100%;margin-top:6px;padding:10px 14px;background-color:#1a1a1a;border:1px solid #404040;border-radius:9999px;color:#fff;font-size:14px;transition:all .18s}
+.form-input:focus{outline:none;border-color:var(--prabath-green);box-shadow:0 0 10px #00ff874d}
+
+.glass-button{padding:8px 16px;display:inline-flex;align-items:center;justify-content:center;background-color:#ffffff0d;border:1px solid #ffffff1a;border-radius:9999px;color:var(--text-primary)}
+
+/* universe background */
+.universe-background{position:fixed;top:0;left:0;width:100vw;height:100vh;background-image:radial-gradient(ellipse at 70% 20%,#00ff8726 0,#0000 50%),radial-gradient(ellipse at 30% 80%,#60a5fa1a 0,#0000 40%),radial-gradient(ellipse at 90% 90%,#c084fc1a 0,#0000 50%);background-color:#000;z-index:-1}
+
+/* neon/glow helpers */
+.glow-green{box-shadow:0 0 25px -5px #00ff8766,inset 0 0 2px 0 #fff3,0 8px 32px #0000004d}
+.text-prabath-green{color:var(--prabath-green)}
+
+/* floating blobs for decoration */
+.float-blob{position:absolute;border-radius:50%;filter:blur(36px);opacity:.35;mix-blend-mode:screen}
+.float-blob.blue{width:240px;height:240px;background:linear-gradient(135deg,rgba(99,102,241,0.9),rgba(99,102,241,0.6));top:6%;left:4%}
+.float-blob.purple{width:260px;height:260px;background:linear-gradient(135deg,rgba(139,92,246,0.9),rgba(139,92,246,0.6));bottom:8%;right:6%}
+
+/* glass container */
+.glass-box{background:var(--glass-bg);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border:1px solid var(--glass-border);border-radius:16px;padding:1rem}
+
+/* buttons */
+.dyno-button{padding:6px 12px;border-radius:9999px;font-weight:600;display:inline-flex;align-items:center;gap:8px}
+.dyno-button:disabled{opacity:.5;cursor:not-allowed}
+
+/* small utilities */
+.loading-spinner{border:2px solid #ffffff4d;border-top:2px solid var(--prabath-green);width:16px;height:16px;border-radius:50%;animation:spin 1s linear infinite}
+@keyframes spin{0%{transform:rotate(0)}to{transform:rotate(1turn)}}
+
+/* responsive tweaks */
+@media (max-width:640px){.form-input{padding:8px;font-size:13px;border-radius:12px}.float-blob{display:none}}
+
+/* spotlight effect for panels */
+.spotlight-panel{position:relative;overflow:hidden}
+.spotlight-panel::before{content:"";position:absolute;left:var(--mouse-x);top:var(--mouse-y);width:0;height:0;background:radial-gradient(circle closest-side,#00ff8726,#0000);transform:translate(-50%,-50%);transition:width .3s,height .3s;pointer-events:none}
+.spotlight-panel:hover::before{width:400px;height:400px}
+
+/* nav glass variant */
+nav.glass-nav{position:fixed;top:1rem;left:50%;transform:translateX(-50%);width:95%;max-width:1200px;height:64px;display:flex;align-items:center;justify-content:space-between;padding:0 1rem;border-radius:9999px;background:rgba(255,255,255,0.06);box-shadow:inset 0 0 0 1px #ffffff14,0 10px 35px #00000080;z-index:1000}
+
+/* message display */
+.message-display{position:fixed;left:50%;top:50%;transform:translate(-50%,-50%);display:none;padding:1rem 1.5rem;border-radius:12px;background:var(--glass-bg);border:1px solid var(--glass-border);color:var(--text-primary)}
+.message-display.show{display:block}
+
+/* small helpers for forms */
+.input-with-icon .input-icon{position:absolute;left:12px;top:50%;transform:translateY(-50%);width:20px;height:20px;opacity:.95}
+.input-with-icon input{padding-left:44px}
