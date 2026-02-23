@@ -93,19 +93,58 @@ function get_facility($facility_id) {
 
 function is_slot_available($facility_id, $booking_date, $time_slot) {
     global $conn;
+    // Backwards-compatible slot availability check. Supports exact slot strings and ranges like "09:00-11:00".
     $facility_id = (int)$facility_id;
     $booking_date = mysqli_real_escape_string($conn, $booking_date);
-    $time_slot = mysqli_real_escape_string($conn, $time_slot);
-    $query = "SELECT COUNT(*) as count FROM bookings WHERE facility_id = $facility_id AND booking_date = '$booking_date' AND time_slot = '$time_slot' AND status != 'Cancelled'";
+    $time_slot_raw = mysqli_real_escape_string($conn, $time_slot);
+
+    // Helper: convert HH:MM to minutes integer
+    $toMinutes = function($t) {
+        $parts = explode(':', $t);
+        if (count($parts) < 2) return 0;
+        return ((int)$parts[0]) * 60 + ((int)$parts[1]);
+    };
+
+    // Parse requested slot
+    if (strpos($time_slot_raw, '-') !== false) {
+        list($req_start, $req_end) = array_map('trim', explode('-', $time_slot_raw, 2));
+    } else {
+        // treat single slot as one-hour block for overlap detection
+        $req_start = $time_slot_raw;
+        $req_end = date('H:i', strtotime($req_start) + 3600);
+    }
+    $req_start_min = $toMinutes($req_start);
+    $req_end_min = $toMinutes($req_end);
+
+    // Get all bookings for the same facility and date that are not cancelled
+    $query = "SELECT time_slot FROM bookings WHERE facility_id = $facility_id AND booking_date = '$booking_date' AND status != 'Cancelled'";
     $result = mysqli_query($conn, $query);
-    $data = mysqli_fetch_assoc($result);
-    return $data['count'] == 0;
+
+    while ($row = mysqli_fetch_assoc($result)) {
+        $existing = trim($row['time_slot']);
+        if (strpos($existing, '-') !== false) {
+            list($ex_start, $ex_end) = array_map('trim', explode('-', $existing, 2));
+        } else {
+            $ex_start = $existing;
+            $ex_end = date('H:i', strtotime($ex_start) + 3600);
+        }
+        $ex_start_min = $toMinutes($ex_start);
+        $ex_end_min = $toMinutes($ex_end);
+
+        // Overlap check: startA < endB && startB < endA
+        if ($req_start_min < $ex_end_min && $ex_start_min < $req_end_min) {
+            return false; // conflict
+        }
+    }
+
+    return true;
 }
 
 function create_booking($user_id, $facility_id, $booking_date, $time_slot, $purpose = '') {
+    // Returns an array: ['success' => bool, 'message' => string]
     global $conn;
     if (!is_slot_available($facility_id, $booking_date, $time_slot)) {
-        return false;
+        return ['success' => false, 'message' => 'The selected date and time are already occupied. Please request another date or time.'];
     }
     $user_id = (int)$user_id;
     $facility_id = (int)$facility_id;
@@ -144,9 +183,9 @@ function create_booking($user_id, $facility_id, $booking_date, $time_slot, $purp
             $purpose
         );
         
-        return true;
+        return ['success' => true, 'message' => 'Booking created successfully'];
     }
-    return false;
+    return ['success' => false, 'message' => 'Error creating booking. Please try again.'];
 }
 
 function get_user_bookings($user_id) {

@@ -34,7 +34,15 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         } elseif (strtotime($booking_date) < strtotime(date('Y-m-d'))) {
             $error = 'Cannot book a past date';
         } else {
-            if (create_booking($_SESSION['user_id'], $facility_id, $booking_date, $time_slot, $purpose)) {
+            $result = create_booking($_SESSION['user_id'], $facility_id, $booking_date, $time_slot, $purpose);
+            if (is_array($result) && isset($result['success'])) {
+                if ($result['success']) {
+                    $message = $result['message'] . ' Booking ID: ' . mysqli_insert_id($GLOBALS['conn']);
+                } else {
+                    $error = $result['message'];
+                }
+            } elseif ($result === true) {
+                // Backwards compatibility (if any caller expects boolean)
                 $message = 'Booking created successfully! Booking ID: ' . mysqli_insert_id($GLOBALS['conn']);
             } else {
                 $error = 'This time slot is already booked. Please select another.';
