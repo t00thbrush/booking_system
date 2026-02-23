@@ -10,6 +10,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $name = trim($_POST['name'] ?? '');
     $username = trim($_POST['username'] ?? '');
     $email = trim($_POST['email'] ?? '');
+    $role = $_POST['role'] ?? 'External';
     $password = $_POST['password'] ?? '';
     $confirm_password = $_POST['confirm_password'] ?? '';
 
@@ -42,7 +43,10 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             $error = 'Username or email already exists';
         } else {
             // Register new user
-            if (register_user($name, $username, $email, $password)) {
+                // Prevent users from registering as Admin via public form
+                if ($role === 'Admin') $role = 'External';
+
+                if (register_user($name, $username, $email, $password, $role)) {
                 // Redirect to login page after successful registration
                 header("Location: index.php?registered=true");
                 exit();
@@ -60,14 +64,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Register - Online Booking System</title>
     <link rel="stylesheet" href="css/style.css">
-    <link rel="stylesheet" href="css/loot_theme.css">
 </head>
 <body>
-    <div class="cinematic-bg">
-        <div class="float-blob blue"></div>
-        <div class="float-blob purple"></div>
-    </div>
-    <div class="universe-background"></div>
     <!-- Navigation -->
     <nav>
         <div class="container">
@@ -106,9 +104,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
             <?php if (empty($success)): ?>
             <form method="POST" action="" id="registerForm">
-                <div class="form-group input-with-icon">
+                <div class="form-group">
                     <label for="name">Full Name *</label>
-                    <svg class="input-icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4z" stroke="#6366f1" stroke-width="1.2" fill="none"/><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2" stroke="#8b5cf6" stroke-width="1.2" fill="none"/></svg>
                     <input 
                         type="text" 
                         id="name" 
@@ -119,9 +116,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                     >
                 </div>
 
-                <div class="form-group input-with-icon">
+                <div class="form-group">
                     <label for="username">Username *</label>
-                    <svg class="input-icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4z" stroke="#6366f1" stroke-width="1.2" fill="none"/><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2" stroke="#8b5cf6" stroke-width="1.2" fill="none"/></svg>
                     <input 
                         type="text" 
                         id="username" 
@@ -134,9 +130,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                     <small class="text-muted">Minimum 3 characters, letters, numbers, and underscores only</small>
                 </div>
 
-                <div class="form-group input-with-icon">
+                <div class="form-group">
                     <label for="email">Email *</label>
-                    <svg class="input-icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M3 8l9 6 9-6" stroke="#06b6d4" stroke-width="1.2" fill="none"/></svg>
                     <input 
                         type="email" 
                         id="email" 
@@ -147,9 +142,18 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                     >
                 </div>
 
-                <div class="form-group input-with-icon">
+                <div class="form-group">
+                    <label for="role">Role *</label>
+                    <select id="role" name="role" required style="width:100%; padding:10px; border-radius:6px;">
+                        <option value="Student" <?php if (($role ?? '')=='Student') echo 'selected'; ?>>Student</option>
+                        <option value="Teacher" <?php if (($role ?? '')=='Teacher') echo 'selected'; ?>>Teacher (requires admin approval)</option>
+                        <option value="External" <?php if (($role ?? '')=='External') echo 'selected'; ?>>External</option>
+                    </select>
+                    <small class="text-muted">Teacher accounts require admin approval before they can login.</small>
+                </div>
+
+                <div class="form-group">
                     <label for="password">Password *</label>
-                    <svg class="input-icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><rect x="3" y="11" width="18" height="11" rx="2" stroke="#06b6d4" stroke-width="1.2" fill="none"/><path d="M7 11V8a5 5 0 0110 0v3" stroke="#06b6d4" stroke-width="1.2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>
                     <input 
                         type="password" 
                         id="password" 
@@ -161,9 +165,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                     <small class="text-muted">Minimum 6 characters</small>
                 </div>
 
-                <div class="form-group input-with-icon">
+                <div class="form-group">
                     <label for="confirm_password">Confirm Password *</label>
-                    <svg class="input-icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><rect x="3" y="11" width="18" height="11" rx="2" stroke="#06b6d4" stroke-width="1.2" fill="none"/></svg>
                     <input 
                         type="password" 
                         id="confirm_password" 

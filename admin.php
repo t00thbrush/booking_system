@@ -93,6 +93,7 @@ foreach ($facilities as $facility) {
             <ul class="nav-links">
                 <li>Welcome, <strong><?php echo htmlspecialchars($_SESSION['name']); ?></strong></li>
                 <li><a href="admin.php">Dashboard</a></li>
+                <li><a href="admin_db.php">Database</a></li>
                 <li><button id="darkModeToggle" class="dark-mode-btn" title="Toggle Dark Mode">🌙</button></li>
                 <li><a href="index.php?logout=true" class="logout-btn">Logout</a></li>
             </ul>

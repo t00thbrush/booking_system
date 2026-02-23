@@ -41,6 +41,11 @@ function login_user($username, $password) {
     
     if (mysqli_num_rows($result) > 0) {
         $user = mysqli_fetch_assoc($result);
+        // Ensure account is approved before allowing login
+        if (!empty($user['is_approved']) && $user['is_approved'] == 0) {
+            return false;
+        }
+
         if (password_verify($password, $user['password'])) {
             $_SESSION['user_id'] = $user['user_id'];
             $_SESSION['username'] = $user['username'];
@@ -58,8 +63,30 @@ function register_user($name, $username, $email, $password, $role = 'External') 
     $username = mysqli_real_escape_string($conn, $username);
     $email = mysqli_real_escape_string($conn, $email);
     $hashed_password = password_hash($password, PASSWORD_DEFAULT);
-    $query = "INSERT INTO users (name, username, email, password, role) VALUES ('$name', '$username', '$email', '$hashed_password', '$role')";
+
+    // Prevent public creation of Admin accounts
+    if ($role === 'Admin') $role = 'External';
+
+    // Teacher accounts require admin approval
+    $is_approved = 1;
+    if ($role === 'Teacher') $is_approved = 0;
+
+    $query = "INSERT INTO users (name, username, email, password, role, is_approved) VALUES ('$name', '$username', '$email', '$hashed_password', '$role', $is_approved)";
     return mysqli_query($conn, $query);
+}
+
+function approve_user($user_id) {
+    global $conn;
+    $user_id = (int)$user_id;
+    $query = "UPDATE users SET is_approved = 1 WHERE user_id = $user_id";
+    return mysqli_query($conn, $query);
+}
+
+function get_pending_teachers() {
+    global $conn;
+    $query = "SELECT user_id, name, username, email, role, created_at FROM users WHERE role = 'Teacher' AND is_approved = 0 ORDER BY created_at ASC";
+    $result = mysqli_query($conn, $query);
+    return mysqli_fetch_all($result, MYSQLI_ASSOC);
 }
 
 function logout_user() {
@@ -93,58 +120,19 @@ function get_facility($facility_id) {
 
 function is_slot_available($facility_id, $booking_date, $time_slot) {
     global $conn;
-    // Backwards-compatible slot availability check. Supports exact slot strings and ranges like "09:00-11:00".
     $facility_id = (int)$facility_id;
     $booking_date = mysqli_real_escape_string($conn, $booking_date);
-    $time_slot_raw = mysqli_real_escape_string($conn, $time_slot);
-
-    // Helper: convert HH:MM to minutes integer
-    $toMinutes = function($t) {
-        $parts = explode(':', $t);
-        if (count($parts) < 2) return 0;
-        return ((int)$parts[0]) * 60 + ((int)$parts[1]);
-    };
-
-    // Parse requested slot
-    if (strpos($time_slot_raw, '-') !== false) {
-        list($req_start, $req_end) = array_map('trim', explode('-', $time_slot_raw, 2));
-    } else {
-        // treat single slot as one-hour block for overlap detection
-        $req_start = $time_slot_raw;
-        $req_end = date('H:i', strtotime($req_start) + 3600);
-    }
-    $req_start_min = $toMinutes($req_start);
-    $req_end_min = $toMinutes($req_end);
-
-    // Get all bookings for the same facility and date that are not cancelled
-    $query = "SELECT time_slot FROM bookings WHERE facility_id = $facility_id AND booking_date = '$booking_date' AND status != 'Cancelled'";
+    $time_slot = mysqli_real_escape_string($conn, $time_slot);
+    $query = "SELECT COUNT(*) as count FROM bookings WHERE facility_id = $facility_id AND booking_date = '$booking_date' AND time_slot = '$time_slot' AND status != 'Cancelled'";
     $result = mysqli_query($conn, $query);
-
-    while ($row = mysqli_fetch_assoc($result)) {
-        $existing = trim($row['time_slot']);
-        if (strpos($existing, '-') !== false) {
-            list($ex_start, $ex_end) = array_map('trim', explode('-', $existing, 2));
-        } else {
-            $ex_start = $existing;
-            $ex_end = date('H:i', strtotime($ex_start) + 3600);
-        }
-        $ex_start_min = $toMinutes($ex_start);
-        $ex_end_min = $toMinutes($ex_end);
-
-        // Overlap check: startA < endB && startB < endA
-        if ($req_start_min < $ex_end_min && $ex_start_min < $req_end_min) {
-            return false; // conflict
-        }
-    }
-
-    return true;
+    $data = mysqli_fetch_assoc($result);
+    return $data['count'] == 0;
 }
 
 function create_booking($user_id, $facility_id, $booking_date, $time_slot, $purpose = '') {
-    // Returns an array: ['success' => bool, 'message' => string]
     global $conn;
     if (!is_slot_available($facility_id, $booking_date, $time_slot)) {
-        return ['success' => false, 'message' => 'The selected date and time are already occupied. Please request another date or time.'];
+        return false;
     }
     $user_id = (int)$user_id;
     $facility_id = (int)$facility_id;
@@ -183,9 +171,9 @@ function create_booking($user_id, $facility_id, $booking_date, $time_slot, $purp
             $purpose
         );
         
-        return ['success' => true, 'message' => 'Booking created successfully'];
+        return true;
     }
-    return ['success' => false, 'message' => 'Error creating booking. Please try again.'];
+    return false;
 }
 
 function get_user_bookings($user_id) {
