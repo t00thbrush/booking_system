@@ -45,14 +45,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login - Online Booking System</title>
     <link rel="stylesheet" href="css/style.css">
-    <link rel="stylesheet" href="css/loot_theme.css">
 </head>
 <body>
-    <div class="cinematic-bg">
-        <div class="float-blob blue"></div>
-        <div class="float-blob purple"></div>
-    </div>
-    <div class="universe-background"></div>
     <!-- Navigation -->
     <nav>
         <div class="container">
@@ -75,10 +69,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     <!-- Main Content -->
     <div class="container">
         <div class="form-container">
-            <h2 class="text-center" style="margin-bottom: 30px; display:flex; align-items:center; gap:10px; justify-content:center;">
-                <svg width="32" height="32" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4z" stroke="#6366f1" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2" stroke="#8b5cf6" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
-                Login
-            </h2>
+            <h2 class="text-center" style="margin-bottom: 30px;">Login</h2>
 
             <?php if (!empty($success)): ?>
                 <div class="alert alert-success">
@@ -93,9 +84,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             <?php endif; ?>
 
             <form method="POST" action="" id="loginForm">
-                <div class="form-group input-with-icon">
+                <div class="form-group">
                     <label for="username">Username *</label>
-                    <svg class="input-icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4z" stroke="#6366f1" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round" fill="none"/><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2" stroke="#8b5cf6" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round" fill="none"/></svg>
                     <input 
                         type="text" 
                         id="username" 
@@ -106,9 +96,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                     >
                 </div>
 
-                <div class="form-group input-with-icon">
+                <div class="form-group">
                     <label for="password">Password *</label>
-                    <svg class="input-icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><rect x="3" y="11" width="18" height="11" rx="2" stroke="#06b6d4" stroke-width="1.2" fill="none"/><path d="M7 11V8a5 5 0 0110 0v3" stroke="#06b6d4" stroke-width="1.2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>
                     <input 
                         type="password" 
                         id="password" 
@@ -126,20 +115,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 <a href="register.php" class="btn btn-success btn-block">Register Now</a>
             </div>
 
-            <!-- Demo Credentials -->
-            <div class="demo-credentials">
-                <h4>📝 Demo users and Admins.</h4>
-                <p>
-                    <strong>Admin Account:</strong><br>
-                    Username: <code>admin</code><br>
-                    Password: <code>admin123</code>
-                </p>
-                <p>
-                    <strong>User Account:</strong><br>
-                    Username: <code>user1</code><br>
-                    Password: <code>user123</code>
-                </p>
-            </div>
+            <!-- Demo credentials removed -->
         </div>
     </div>
 
