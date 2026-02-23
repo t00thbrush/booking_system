@@ -12,7 +12,7 @@ function is_admin() {
 }
 
 function is_staff() {
-    return is_logged_in() && $_SESSION['role'] == 'Staff';
+    return is_logged_in() && in_array($_SESSION['role'], ['Staff','Teacher']);
 }
 
 function require_login() {
@@ -87,6 +87,59 @@ function get_pending_teachers() {
     $query = "SELECT user_id, name, username, email, role, created_at FROM users WHERE role = 'Teacher' AND is_approved = 0 ORDER BY created_at ASC";
     $result = mysqli_query($conn, $query);
     return mysqli_fetch_all($result, MYSQLI_ASSOC);
+}
+
+// ============================
+// Teacher Facility Permissions
+// ============================
+
+function grant_teacher_facility($user_id, $facility_id) {
+    global $conn;
+    $user_id = (int)$user_id;
+    $facility_id = (int)$facility_id;
+    $query = "INSERT IGNORE INTO teacher_facility_permissions (user_id, facility_id) VALUES ($user_id, $facility_id)";
+    return mysqli_query($conn, $query);
+}
+
+function revoke_teacher_facility($user_id, $facility_id) {
+    global $conn;
+    $user_id = (int)$user_id;
+    $facility_id = (int)$facility_id;
+    $query = "DELETE FROM teacher_facility_permissions WHERE user_id = $user_id AND facility_id = $facility_id";
+    return mysqli_query($conn, $query);
+}
+
+function set_teacher_facilities($user_id, $facility_ids = []) {
+    global $conn;
+    $user_id = (int)$user_id;
+    // Remove existing
+    mysqli_query($conn, "DELETE FROM teacher_facility_permissions WHERE user_id = $user_id");
+    // Insert new
+    foreach ($facility_ids as $fid) {
+        $fid = (int)$fid;
+        if ($fid > 0) {
+            mysqli_query($conn, "INSERT IGNORE INTO teacher_facility_permissions (user_id, facility_id) VALUES ($user_id, $fid)");
+        }
+    }
+    return true;
+}
+
+function get_teacher_facilities($user_id) {
+    global $conn;
+    $user_id = (int)$user_id;
+    $query = "SELECT tfp.facility_id, f.facility_name FROM teacher_facility_permissions tfp JOIN facilities f ON tfp.facility_id = f.facility_id WHERE tfp.user_id = $user_id";
+    $result = mysqli_query($conn, $query);
+    return mysqli_fetch_all($result, MYSQLI_ASSOC);
+}
+
+function teacher_has_facility($user_id, $facility_id) {
+    global $conn;
+    $user_id = (int)$user_id;
+    $facility_id = (int)$facility_id;
+    $query = "SELECT COUNT(*) as cnt FROM teacher_facility_permissions WHERE user_id = $user_id AND facility_id = $facility_id";
+    $res = mysqli_query($conn, $query);
+    $row = mysqli_fetch_assoc($res);
+    return ($row['cnt'] ?? 0) > 0;
 }
 
 function logout_user() {
@@ -341,7 +394,8 @@ function search_all_bookings($facility_id = null, $status = null, $user_id = nul
 
 function get_all_users() {
     global $conn;
-    $query = "SELECT user_id, name, email FROM users WHERE role IN ('External', 'Staff') ORDER BY name";
+    // Return all non-admin users
+    $query = "SELECT user_id, name, email FROM users WHERE role != 'Admin' ORDER BY name";
     $result = mysqli_query($conn, $query);
     return mysqli_fetch_all($result, MYSQLI_ASSOC);
 }

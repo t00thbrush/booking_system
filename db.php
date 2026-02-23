@@ -26,7 +26,7 @@ mysqli_select_db($conn, DB_NAME);
 $users_table = "CREATE TABLE IF NOT EXISTS users (
     user_id INT AUTO_INCREMENT PRIMARY KEY,
     name VARCHAR(100) NOT NULL,
-    role ENUM('Admin', 'Staff', 'External') DEFAULT 'External',
+    role ENUM('Admin', 'Teacher', 'Student', 'External') DEFAULT 'External',
     username VARCHAR(50) UNIQUE NOT NULL,
     password VARCHAR(255) NOT NULL,
     email VARCHAR(100) UNIQUE,
@@ -101,6 +101,21 @@ $audit_table = "CREATE TABLE IF NOT EXISTS audit_log (
 
 if (!mysqli_query($conn, $audit_table)) {
     echo "Error creating audit_log table: " . mysqli_error($conn);
+}
+
+// Create teacher-facility permissions table
+$teacher_perm = "CREATE TABLE IF NOT EXISTS teacher_facility_permissions (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    user_id INT NOT NULL,
+    facility_id INT NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE,
+    FOREIGN KEY (facility_id) REFERENCES facilities(facility_id) ON DELETE CASCADE,
+    UNIQUE KEY unique_teacher_facility (user_id, facility_id)
+)";
+
+if (!mysqli_query($conn, $teacher_perm)) {
+    echo "Error creating teacher_facility_permissions table: " . mysqli_error($conn);
 }
 
 // Add amenities column to facilities if it doesn't exist

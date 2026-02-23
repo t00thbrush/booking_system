@@ -17,6 +17,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         } else {
             $error = 'Failed to approve user.';
         }
+    } elseif ($action === 'update_teacher_facilities') {
+        $uid = (int)($_POST['user_id'] ?? 0);
+        $fids = $_POST['facilities'] ?? [];
+        if ($uid) {
+            set_teacher_facilities($uid, $fids);
+            $message = 'Teacher facility permissions updated.';
+        }
     } elseif ($action === 'delete_user') {
         $uid = (int)($_POST['user_id'] ?? 0);
         if ($uid) {
@@ -59,29 +66,49 @@ $users = mysqli_fetch_all($users_res, MYSQLI_ASSOC);
         <table class="table">
             <thead><tr><th>Name</th><th>Username</th><th>Email</th><th>Role</th><th>Approved</th><th>Actions</th></tr></thead>
             <tbody>
-                <?php foreach ($users as $u): ?>
-                <tr>
-                    <td><?php echo htmlspecialchars($u['name']); ?></td>
-                    <td><?php echo htmlspecialchars($u['username']); ?></td>
-                    <td><?php echo htmlspecialchars($u['email']); ?></td>
-                    <td><?php echo htmlspecialchars($u['role']); ?></td>
-                    <td><?php echo $u['is_approved'] ? 'Yes' : 'No'; ?></td>
-                    <td>
-                        <?php if (!$u['is_approved'] && $u['role'] === 'Teacher'): ?>
-                        <form method="POST" style="display:inline">
-                            <input type="hidden" name="action" value="approve_user">
-                            <input type="hidden" name="user_id" value="<?php echo $u['user_id']; ?>">
-                            <button class="btn btn-primary btn-sm">Approve</button>
-                        </form>
+                        <?php foreach ($users as $u): ?>
+                        <tr>
+                            <td><?php echo htmlspecialchars($u['name']); ?></td>
+                            <td><?php echo htmlspecialchars($u['username']); ?></td>
+                            <td><?php echo htmlspecialchars($u['email']); ?></td>
+                            <td><?php echo htmlspecialchars($u['role']); ?></td>
+                            <td><?php echo $u['is_approved'] ? 'Yes' : 'No'; ?></td>
+                            <td>
+                                <?php if (!$u['is_approved'] && $u['role'] === 'Teacher'): ?>
+                                <form method="POST" style="display:inline">
+                                    <input type="hidden" name="action" value="approve_user">
+                                    <input type="hidden" name="user_id" value="<?php echo $u['user_id']; ?>">
+                                    <button class="btn btn-primary btn-sm">Approve</button>
+                                </form>
+                                <?php endif; ?>
+                                <form method="POST" style="display:inline; margin-left:6px;" onsubmit="return confirm('Delete user?')">
+                                    <input type="hidden" name="action" value="delete_user">
+                                    <input type="hidden" name="user_id" value="<?php echo $u['user_id']; ?>">
+                                    <button class="btn btn-danger btn-sm">Delete</button>
+                                </form>
+                            </td>
+                        </tr>
+
+                        <?php if ($u['role'] === 'Teacher'): ?>
+                        <tr>
+                            <td colspan="6" style="background:#fbfbfb;">
+                                <form method="POST" style="display:flex; gap:10px; align-items:center;">
+                                    <input type="hidden" name="action" value="update_teacher_facilities">
+                                    <input type="hidden" name="user_id" value="<?php echo $u['user_id']; ?>">
+                                    <label style="margin:0; width:140px; font-weight:600;">Assign Facilities:</label>
+                                    <select name="facilities[]" multiple style="flex:1; padding:8px; border-radius:6px;">
+                                        <?php foreach (get_facilities() as $f):
+                                            $assigned = teacher_has_facility($u['user_id'], $f['facility_id']);
+                                        ?>
+                                            <option value="<?php echo $f['facility_id']; ?>" <?php echo $assigned ? 'selected' : ''; ?>><?php echo htmlspecialchars($f['facility_name']); ?></option>
+                                        <?php endforeach; ?>
+                                    </select>
+                                    <button class="btn btn-primary btn-sm" style="margin-left:8px;">Save</button>
+                                </form>
+                            </td>
+                        </tr>
                         <?php endif; ?>
-                        <form method="POST" style="display:inline; margin-left:6px;" onsubmit="return confirm('Delete user?')">
-                            <input type="hidden" name="action" value="delete_user">
-                            <input type="hidden" name="user_id" value="<?php echo $u['user_id']; ?>">
-                            <button class="btn btn-danger btn-sm">Delete</button>
-                        </form>
-                    </td>
-                </tr>
-                <?php endforeach; ?>
+                        <?php endforeach; ?>
             </tbody>
         </table>
 
