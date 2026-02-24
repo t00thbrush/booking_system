@@ -47,51 +47,6 @@ body {
     line-height: 1.6;
 }
 
-/* Cinematic animated background */
-.cinematic-bg {
-    position: fixed;
-    inset: 0;
-    z-index: -1;
-    pointer-events: none;
-    background: radial-gradient(ellipse at 10% 20%, rgba(99,102,241,0.08), transparent 10%), radial-gradient(ellipse at 90% 80%, rgba(139,92,246,0.06), transparent 12%);
-    animation: cinematicShift 20s ease-in-out infinite;
-}
-
-@keyframes cinematicShift {
-    0% { transform: translateY(0) scale(1); }
-    50% { transform: translateY(-30px) scale(1.02); }
-    100% { transform: translateY(0) scale(1); }
-}
-
-/* Floating decorative blobs */
-.float-blob {
-    position: absolute;
-    width: 220px;
-    height: 220px;
-    border-radius: 50%;
-    filter: blur(36px);
-    opacity: 0.35;
-    mix-blend-mode: screen;
-    animation: floaty 8s ease-in-out infinite;
-}
-
-.float-blob.blue { background: linear-gradient(135deg, rgba(99,102,241,0.9), rgba(99,102,241,0.6)); top: 10%; left: 5%; }
-.float-blob.purple { background: linear-gradient(135deg, rgba(139,92,246,0.9), rgba(139,92,246,0.6)); bottom: 10%; right: 5%; animation-delay: 2s }
-
-@keyframes floaty {
-    0% { transform: translateY(0) translateX(0); }
-    50% { transform: translateY(-20px) translateX(8px); }
-    100% { transform: translateY(0) translateX(0); }
-}
-
-/* Input icons */
-.input-with-icon { position: relative; }
-.input-with-icon input { padding-left: 44px; }
-.input-with-icon .input-icon {
-    position: absolute; left: 12px; top: 50%; transform: translateY(-50%);
-    width: 20px; height: 20px; opacity: 0.9;
-}
-
 body.dark-mode {
     background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
     color: #e2e8f0;

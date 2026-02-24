@@ -34,15 +34,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         } elseif (strtotime($booking_date) < strtotime(date('Y-m-d'))) {
             $error = 'Cannot book a past date';
         } else {
-            $result = create_booking($_SESSION['user_id'], $facility_id, $booking_date, $time_slot, $purpose);
-            if (is_array($result) && isset($result['success'])) {
-                if ($result['success']) {
-                    $message = $result['message'] . ' Booking ID: ' . mysqli_insert_id($GLOBALS['conn']);
-                } else {
-                    $error = $result['message'];
-                }
-            } elseif ($result === true) {
-                // Backwards compatibility (if any caller expects boolean)
+            if (create_booking($_SESSION['user_id'], $facility_id, $booking_date, $time_slot, $purpose)) {
                 $message = 'Booking created successfully! Booking ID: ' . mysqli_insert_id($GLOBALS['conn']);
             } else {
                 $error = 'This time slot is already booked. Please select another.';
@@ -106,10 +98,8 @@ $time_slots = ['09:00', '10:00', '11:00', '12:00', '13:00', '14:00', '15:00', '1
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Book Facilities - Online Booking System</title>
     <link rel="stylesheet" href="css/style.css">
-    <link rel="stylesheet" href="css/loot_theme.css">
 </head>
 <body>
-    <div class="universe-background"></div>
     <!-- Navigation -->
     <nav>
         <div class="container">
