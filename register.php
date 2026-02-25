@@ -81,7 +81,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     <!-- Navigation -->
     <nav class="navbar-transparent">
         <div class="container">
-            <a href="index.php" class="nav-brand-logo">School Booking</a>
+            <a href="index.php" class="nav-brand-logo">Booking System</a>
             <ul class="nav-links">
                 <li><a href="index.php">Login</a></li>
                 <li><button id="darkModeToggle" class="dark-mode-btn" title="Toggle Dark Mode">🌙</button></li>

@@ -87,17 +87,41 @@ if (!empty($search_facility) || !empty($search_status) || !empty($search_date_fr
 } else {
     $user_bookings = get_user_bookings($_SESSION['user_id']);
 }
-
-// Time slots available
-$time_slots = ['09:00', '10:00', '11:00', '12:00', '13:00', '14:00', '15:00', '16:00', '17:00', '18:00'];
 ?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Book Facilities - Online Booking System</title>
+    <title>Book Facilities - Booking System</title>
     <link rel="stylesheet" href="css/style.css">
+    <style>
+        .booking-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+            margin-bottom: 3rem;
+        }
+        .time-input-wrapper {
+            display: flex;
+            gap: 1rem;
+            align-items: flex-end;
+        }
+        .time-input-wrapper input {
+            flex: 1;
+        }
+        .facilities-horizontal {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 3rem;
+        }
+        @media (max-width: 1024px) {
+            .booking-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
 </head>
 <body>
     <!-- Navigation -->
@@ -117,7 +141,7 @@ $time_slots = ['09:00', '10:00', '11:00', '12:00', '13:00', '14:00', '15:00', '1
     <div class="page-header">
         <div class="container">
             <h1>Book a Facility</h1>
-            <p>Reserve school facilities for your events</p>
+            <p>Reserve school facilities for your events and activities</p>
         </div>
     </div>
 
@@ -135,12 +159,13 @@ $time_slots = ['09:00', '10:00', '11:00', '12:00', '13:00', '14:00', '15:00', '1
             </div>
         <?php endif; ?>
 
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 30px; margin-bottom: 40px;">
-            <!-- Booking Form -->
-            <div>
+        <!-- New Booking Section -->
+        <div class="admin-section">
+            <h2 class="section-title">Create New Booking</h2>
+            
+            <div class="booking-grid">
+                <!-- Booking Form -->
                 <div class="booking-form">
-                    <h2 style="margin-bottom: 20px;">New Booking</h2>
-
                     <form method="POST" action="">
                         <input type="hidden" name="action" value="book">
 
@@ -169,21 +194,14 @@ $time_slots = ['09:00', '10:00', '11:00', '12:00', '13:00', '14:00', '15:00', '1
                         </div>
 
                         <div class="form-group">
-                            <label>Available Time Slots *</label>
-                            <div class="time-slots">
-                                <?php foreach ($time_slots as $slot): ?>
-                                    <input 
-                                        type="radio" 
-                                        id="slot_<?php echo $slot; ?>"
-                                        name="time_slot" 
-                                        value="<?php echo $slot; ?>"
-                                        required
-                                    >
-                                    <label for="slot_<?php echo $slot; ?>">
-                                        <?php echo $slot; ?>
-                                    </label>
-                                <?php endforeach; ?>
-                            </div>
+                            <label for="time_slot">Time Slot (e.g., 8AM to 12PM) *</label>
+                            <input 
+                                type="text" 
+                                id="time_slot" 
+                                name="time_slot" 
+                                placeholder="e.g., 8AM to 12PM or 09:00-13:00"
+                                required
+                            >
                         </div>
 
                         <div class="form-group">
@@ -192,96 +210,102 @@ $time_slots = ['09:00', '10:00', '11:00', '12:00', '13:00', '14:00', '15:00', '1
                                 id="purpose" 
                                 name="purpose" 
                                 placeholder="Describe the purpose of booking"
-                                rows="4"
+                                rows="3"
                             ></textarea>
                         </div>
 
-                        <button type="submit" class="btn btn-success btn-block">Create Booking</button>
+                        <button type="submit" class="btn btn-primary btn-block btn-lg">Create Booking</button>
                     </form>
                 </div>
-            </div>
 
-            <!-- Available Facilities -->
-            <div>
-                <h2 style="margin-bottom: 20px;">Available Facilities</h2>
-                <div class="facilities-grid" style="grid-template-columns: 1fr;">
-                    <?php foreach ($facilities as $facility): ?>
-                        <div class="facility-card">
-                            <div class="facility-card-header">
-                                <h3><?php echo htmlspecialchars($facility['facility_name']); ?></h3>
-                            </div>
-                            <div class="facility-card-body">
-                                <p><?php echo htmlspecialchars($facility['description']); ?></p>
-                                <div class="facility-capacity">
-                                    <strong>Capacity:</strong> <?php echo htmlspecialchars($facility['capacity']); ?> people
-                                </div>
-                            </div>
+                <!-- Quick Info -->
+                <div class="card">
+                    <h3 style="color: var(--primary); margin-bottom: 1.5rem; text-transform: uppercase; letter-spacing: 1px;">📋 Booking Info</h3>
+                    <div style="display: flex; flex-direction: column; gap: 1rem;">
+                        <div>
+                            <p style="color: var(--text-secondary); font-size: 0.9rem; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 0.3rem;">Total Facilities</p>
+                            <p style="color: var(--primary); font-size: 1.8rem; font-weight: 900;"><?php echo count($facilities); ?></p>
                         </div>
-                    <?php endforeach; ?>
+                        <div>
+                            <p style="color: var(--text-secondary); font-size: 0.9rem; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 0.3rem;">Your Bookings</p>
+                            <p style="color: var(--primary); font-size: 1.8rem; font-weight: 900;"><?php echo count($user_bookings); ?></p>
+                        </div>
+                        <div style="padding-top: 1rem; border-top: 1px solid var(--border-color);">
+                            <p style="color: var(--text-secondary); font-size: 0.85rem; line-height: 1.6;">
+                                <strong>Note:</strong> Bookings are subject to admin approval. You will receive a notification once your booking is reviewed.
+                            </p>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
 
-        <!-- My Bookings -->
-        <div class="card">
-            <div class="card-body">
-            <h2 style="margin-bottom: 20px;">My Bookings</h2>
+        <!-- Available Facilities Section -->
+        <div class="admin-section">
+            <h2 class="section-title">Available Facilities</h2>
+            
+            <div class="facilities-horizontal">
+                <?php foreach ($facilities as $facility): ?>
+                    <div class="facility-card">
+                        <div class="facility-card-header">
+                            <h3><?php echo htmlspecialchars($facility['facility_name']); ?></h3>
+                        </div>
+                        <div class="facility-card-body">
+                            <p><?php echo htmlspecialchars($facility['description'] ?? 'No description available'); ?></p>
+                            <div class="facility-capacity">
+                                <strong>👥 Capacity:</strong> <?php echo htmlspecialchars($facility['capacity']); ?> people
+                            </div>
+                            <div style="color: var(--text-secondary); font-size: 0.9rem; margin-top: 0.5rem;">
+                                <strong>📍 Location:</strong> <?php echo htmlspecialchars($facility['location'] ?? 'N/A'); ?>
+                            </div>
+                        </div>
+                    </div>
+                <?php endforeach; ?>
+            </div>
+        </div>
+
+        <!-- My Bookings Section -->
+        <div class="admin-section">
+            <h2 class="section-title">My Bookings</h2>
 
             <!-- Search & Filter Form -->
-            <div style="background: rgba(99, 102, 241, 0.05); padding: 20px; border-radius: 8px; margin-bottom: 20px; border-left: 3px solid #6366f1;">
-                <h3 style="margin-top: 0; color: #1e293b; font-size: 16px;">🔍 Search & Filter</h3>
-                <form method="GET" action="booking.php" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px;">
-                    <div>
-                        <label style="display: block; font-size: 13px; font-weight: 600; color: #64748b; margin-bottom: 5px;">Facility</label>
-                        <select name="search_facility" style="width: 100%; padding: 8px; border: 1px solid #cbd5e1; border-radius: 6px; background: white;">
-                            <option value="">All Facilities</option>
-                            <?php foreach ($facilities as $facility): ?>
-                                <option value="<?php echo $facility['facility_id']; ?>" <?php echo $search_facility == $facility['facility_id'] ? 'selected' : ''; ?>>
-                                    <?php echo htmlspecialchars($facility['facility_name']); ?>
-                                </option>
-                            <?php endforeach; ?>
-                        </select>
-                    </div>
+            <div class="card">
+                <h3 style="margin-bottom: 1.5rem; color: var(--primary); text-transform: uppercase; letter-spacing: 1px;">🔍 Search & Filter</h3>
+                <form method="GET" action="booking.php" class="search-filters">
+                    <select name="search_facility">
+                        <option value="">All Facilities</option>
+                        <?php foreach ($facilities as $facility): ?>
+                            <option value="<?php echo $facility['facility_id']; ?>" <?php echo $search_facility == $facility['facility_id'] ? 'selected' : ''; ?>>
+                                <?php echo htmlspecialchars($facility['facility_name']); ?>
+                            </option>
+                        <?php endforeach; ?>
+                    </select>
 
-                    <div>
-                        <label style="display: block; font-size: 13px; font-weight: 600; color: #64748b; margin-bottom: 5px;">Status</label>
-                        <select name="search_status" style="width: 100%; padding: 8px; border: 1px solid #cbd5e1; border-radius: 6px; background: white;">
-                            <option value="">All Statuses</option>
-                            <option value="Pending" <?php echo $search_status == 'Pending' ? 'selected' : ''; ?>>Pending</option>
-                            <option value="Approved" <?php echo $search_status == 'Approved' ? 'selected' : ''; ?>>Approved</option>
-                            <option value="Rejected" <?php echo $search_status == 'Rejected' ? 'selected' : ''; ?>>Rejected</option>
-                            <option value="Cancelled" <?php echo $search_status == 'Cancelled' ? 'selected' : ''; ?>>Cancelled</option>
-                        </select>
-                    </div>
+                    <select name="search_status">
+                        <option value="">All Statuses</option>
+                        <option value="Pending" <?php echo $search_status == 'Pending' ? 'selected' : ''; ?>>Pending</option>
+                        <option value="Approved" <?php echo $search_status == 'Approved' ? 'selected' : ''; ?>>Approved</option>
+                        <option value="Rejected" <?php echo $search_status == 'Rejected' ? 'selected' : ''; ?>>Rejected</option>
+                        <option value="Cancelled" <?php echo $search_status == 'Cancelled' ? 'selected' : ''; ?>>Cancelled</option>
+                    </select>
 
-                    <div>
-                        <label style="display: block; font-size: 13px; font-weight: 600; color: #64748b; margin-bottom: 5px;">From Date</label>
-                        <input type="date" name="search_date_from" value="<?php echo htmlspecialchars($search_date_from); ?>" style="width: 100%; padding: 8px; border: 1px solid #cbd5e1; border-radius: 6px;">
-                    </div>
-
-                    <div>
-                        <label style="display: block; font-size: 13px; font-weight: 600; color: #64748b; margin-bottom: 5px;">To Date</label>
-                        <input type="date" name="search_date_to" value="<?php echo htmlspecialchars($search_date_to); ?>" style="width: 100%; padding: 8px; border: 1px solid #cbd5e1; border-radius: 6px;">
-                    </div>
-
-                    <div>
-                        <label style="display: block; font-size: 13px; font-weight: 600; color: #64748b; margin-bottom: 5px;">Search Text</label>
-                        <input type="text" name="search_text" placeholder="Search purpose, facility..." value="<?php echo htmlspecialchars($search_text); ?>" style="width: 100%; padding: 8px; border: 1px solid #cbd5e1; border-radius: 6px;">
-                    </div>
-
-                    <div style="display: flex; gap: 10px; align-items: flex-end;">
-                        <button type="submit" style="background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%); color: white; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer; flex: 1;">🔍 Search</button>
-                        <a href="booking.php" style="background: #e2e8f0; color: #1e293b; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer; text-decoration: none; text-align: center;">Reset</a>
+                    <input type="date" name="search_date_from" value="<?php echo htmlspecialchars($search_date_from); ?>" placeholder="From Date">
+                    <input type="date" name="search_date_to" value="<?php echo htmlspecialchars($search_date_to); ?>" placeholder="To Date">
+                    <input type="text" name="search_text" placeholder="Search purpose, facility..." value="<?php echo htmlspecialchars($search_text); ?>">
+                    
+                    <div style="display: flex; gap: 0.5rem;">
+                        <button type="submit" class="btn btn-primary btn-sm">🔍 Search</button>
+                        <a href="booking.php" class="btn btn-sm" style="background: rgba(255, 255, 255, 0.1); color: var(--text-secondary);">Reset</a>
                     </div>
                 </form>
             </div>
 
             <?php if (empty($user_bookings)): ?>
-                <p class="text-muted" style="text-align: center; padding: 40px 0;">
-                    No bookings found. <a href="#" onclick="document.querySelector('[name=facility_id]').focus();" style="color: var(--primary-color);">Book a facility now!</a>
-                </p>
+                <div class="card" style="text-align: center; padding: 3rem;">
+                    <p style="color: var(--text-secondary); margin-bottom: 1rem;">No bookings found. Create your first booking above!</p>
+                </div>
             <?php else: ?>
-                <div style="overflow-x: auto;">
+                <div class="card" style="overflow-x: auto;">
                     <table class="table">
                         <thead>
                             <tr>
@@ -298,7 +322,7 @@ $time_slots = ['09:00', '10:00', '11:00', '12:00', '13:00', '14:00', '15:00', '1
                                 <tr>
                                     <td><?php echo htmlspecialchars($booking['facility_name']); ?></td>
                                     <td><?php echo date('M d, Y', strtotime($booking['booking_date'])); ?></td>
-                                    <td><?php echo $booking['time_slot']; ?></td>
+                                    <td><?php echo htmlspecialchars($booking['time_slot']); ?></td>
                                     <td><?php echo htmlspecialchars($booking['purpose'] ?: 'N/A'); ?></td>
                                     <td>
                                         <span class="status-badge status-<?php echo strtolower($booking['status']); ?>">
@@ -306,197 +330,52 @@ $time_slots = ['09:00', '10:00', '11:00', '12:00', '13:00', '14:00', '15:00', '1
                                         </span>
                                     </td>
                                     <td>
-                                        <div style="display: flex; gap: 5px; flex-wrap: wrap;">
-                                            <?php if ($booking['status'] != 'Cancelled'): ?>
-                                                <form method="POST" action="" style="display: inline;">
-                                                    <input type="hidden" name="action" value="cancel">
-                                                    <input type="hidden" name="booking_id" value="<?php echo $booking['booking_id']; ?>">
-                                                    <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Cancel this booking?')">Cancel</button>
-                                                </form>
-                                            <?php else: ?>
-                                                <span class="text-muted">—</span>
-                                            <?php endif; ?>
-                                        </div>
+                                        <?php if ($booking['status'] == 'Pending' || $booking['status'] == 'Approved'): ?>
+                                            <form method="POST" style="display: inline;">
+                                                <input type="hidden" name="booking_id" value="<?php echo $booking['booking_id']; ?>">
+                                                <input type="hidden" name="action" value="cancel">
+                                                <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Are you sure?')">Cancel</button>
+                                            </form>
+                                        <?php else: ?>
+                                            <span style="color: var(--text-light);">—</span>
+                                        <?php endif; ?>
                                     </td>
                                 </tr>
-
                             <?php endforeach; ?>
                         </tbody>
                     </table>
                 </div>
             <?php endif; ?>
-
-            <!-- Collapsed Comments & Discussion Section -->
-            <div style="margin-top: 40px; border-top: 1px solid var(--border-color); padding-top: 30px;">
-                <div class="comments-section-header" onclick="toggleCommentsSection()" style="
-                    cursor: pointer;
-                    display: flex;
-                    align-items: center;
-                    gap: 10px;
-                    padding: 15px;
-                    background: rgba(255,255,255,0.05);
-                    border: 1px solid var(--border-color);
-                    border-radius: 8px;
-                    user-select: none;
-                    transition: all 0.3s ease;
-                ">
-                    <span id="commentsSectionToggle" style="font-size: 18px; transition: transform 0.3s ease;">▶</span>
-                    <h3 style="margin: 0; font-size: 16px; color: var(--text-color);">💬 Comments & Discussion</h3>
-                    <span style="margin-left: auto; font-size: 12px; color: #64748b;">
-                        <?php 
-                        $total_comments = 0;
-                        foreach ($user_bookings as $booking) {
-                            $total_comments += get_comment_count($booking['booking_id']);
-                        }
-                        echo $total_comments > 0 ? $total_comments . ' comment' . ($total_comments != 1 ? 's' : '') : 'No comments yet';
-                        ?>
-                    </span>
-                </div>
-
-                <div id="commentsSectionContent" style="display: none; padding: 20px; background: rgba(255,255,255,0.02); border: 1px solid var(--border-color); border-top: none; border-radius: 0 0 8px 8px;">
-                    
-                    <!-- Facility Selector -->
-                    <div style="margin-bottom: 20px;">
-                        <label for="commentsFilterFacility" style="display: block; margin-bottom: 8px; color: #64748b; font-size: 13px; font-weight: 500;">Select Facility to View Comments:</label>
-                        <select id="commentsFilterFacility" onchange="filterCommentsByFacility()" style="
-                            width: 100%;
-                            padding: 10px 12px;
-                            border: 1px solid var(--border-color);
-                            border-radius: 6px;
-                            background: rgba(255,255,255,0.05);
-                            color: var(--text-color);
-                            font-family: inherit;
-                            cursor: pointer;
-                        ">
-                            <option value="">-- All Facilities --</option>
-                            <?php foreach ($facilities as $facility): 
-                                // Only show facilities user has bookings for
-                                $has_booking = false;
-                                foreach ($user_bookings as $booking) {
-                                    if ($booking['facility_id'] == $facility['facility_id']) {
-                                        $has_booking = true;
-                                        break;
-                                    }
-                                }
-                                if ($has_booking):
-                            ?>
-                                <option value="<?php echo $facility['facility_id']; ?>">
-                                    <?php echo htmlspecialchars($facility['facility_name']); ?>
-                                </option>
-                            <?php 
-                                endif;
-                            endforeach; 
-                            ?>
-                        </select>
-                    </div>
-
-                    <!-- Comments Display Area -->
-                    <div id="commentsDisplayArea">
-                        <div class="comments-list" style="max-height: 500px; overflow-y: auto;">
-                            <?php
-                            // Display all comments from user's bookings
-                            $all_comments_with_bookings = [];
-                            foreach ($user_bookings as $booking) {
-                                $comments = get_booking_comments($booking['booking_id']);
-                                foreach ($comments as $comment) {
-                                    $comment['booking_id'] = $booking['booking_id'];
-                                    $comment['facility_id'] = $booking['facility_id'];
-                                    $comment['facility_name'] = $booking['facility_name'];
-                                    $comment['booking_date'] = $booking['booking_date'];
-                                    $comment['time_slot'] = $booking['time_slot'];
-                                    $all_comments_with_bookings[] = $comment;
-                                }
-                            }
-
-                            // Sort by date descending
-                            usort($all_comments_with_bookings, function($a, $b) {
-                                return strtotime($b['created_at']) - strtotime($a['created_at']);
-                            });
-
-                            if (empty($all_comments_with_bookings)):
-                            ?>
-                                <p class="text-muted" style="text-align: center; padding: 30px 0; margin: 0;">
-                                    No comments yet. Add a comment to your bookings to start the discussion!
-                                </p>
-                            <?php else: ?>
-                                <?php foreach ($all_comments_with_bookings as $comment): ?>
-                                    <div class="comment-item" data-facility-id="<?php echo $comment['facility_id']; ?>" style="
-                                        padding: 15px;
-                                        margin-bottom: 15px;
-                                        background: rgba(255,255,255,0.02);
-                                        border: 1px solid var(--border-color);
-                                        border-radius: 6px;
-                                        transition: all 0.3s ease;
-                                    ">
-                                        <div style="margin-bottom: 10px; font-size: 13px; color: #64748b;">
-                                            <strong><?php echo htmlspecialchars($comment['facility_name']); ?></strong>
-                                            <br>
-                                            <?php echo date('M d, Y', strtotime($comment['booking_date'])); ?> at <?php echo $comment['time_slot']; ?>
-                                        </div>
-                                        <div class="comment-author" style="margin-bottom: 8px;">
-                                            <?php echo htmlspecialchars($comment['name']); ?>
-                                            <span class="comment-time"><?php echo date('M d, h:i A', strtotime($comment['created_at'])); ?></span>
-                                        </div>
-                                        <div class="comment-text"><?php echo htmlspecialchars($comment['comment_text']); ?></div>
-                                    </div>
-                                <?php endforeach; ?>
-                            <?php endif; ?>
-                        </div>
-                    </div>
-
-                    <!-- Add Comment Form -->
-                    <div style="margin-top: 20px; padding-top: 20px; border-top: 1px solid var(--border-color);">
-                        <h4 style="margin: 0 0 15px 0; color: var(--text-color);">Add a Comment</h4>
-                        <form method="POST" action="">
-                            <input type="hidden" name="action" value="add_comment">
-                            
-                            <div style="margin-bottom: 15px;">
-                                <label for="commentBookingSelect" style="display: block; margin-bottom: 8px; color: #64748b; font-size: 13px; font-weight: 500;">Select Booking to Comment On:</label>
-                                <select id="commentBookingSelect" name="booking_id" required style="
-                                    width: 100%;
-                                    padding: 10px 12px;
-                                    border: 1px solid var(--border-color);
-                                    border-radius: 6px;
-                                    background: rgba(255,255,255,0.05);
-                                    color: var(--text-color);
-                                    font-family: inherit;
-                                    cursor: pointer;
-                                ">
-                                    <option value="">-- Select a Booking --</option>
-                                    <?php foreach ($user_bookings as $booking): ?>
-                                        <option value="<?php echo $booking['booking_id']; ?>">
-                                            <?php echo htmlspecialchars($booking['facility_name']); ?> - <?php echo date('M d, Y', strtotime($booking['booking_date'])); ?> at <?php echo $booking['time_slot']; ?>
-                                        </option>
-                                    <?php endforeach; ?>
-                                </select>
-                            </div>
-
-                            <textarea name="comment_text" placeholder="Add a comment or note..." required style="
-                                width: 100%;
-                                padding: 12px;
-                                border: 1px solid var(--border-color);
-                                border-radius: 6px;
-                                background: rgba(255,255,255,0.05);
-                                color: var(--text-color);
-                                font-family: inherit;
-                                resize: vertical;
-                                min-height: 100px;
-                            "></textarea>
-
-                            <button type="submit" class="btn btn-primary" style="margin-top: 15px;">Post Comment</button>
-                        </form>
-                    </div>
-                </div>
-            </div>
-            </div>
         </div>
     </div>
 
-    <!-- Footer -->
-    <footer>
-        <p>&copy; 2026 Online Booking System. All rights reserved.</p>
-        <p>School Facilities Management</p>
-    </footer>
+    <style>
+        .status-badge {
+            display: inline-block;
+            padding: 0.4rem 0.8rem;
+            border-radius: 6px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .status-pending {
+            background: rgba(245, 158, 11, 0.2);
+            color: #f59e0b;
+        }
+        .status-approved {
+            background: rgba(16, 185, 129, 0.2);
+            color: #10b981;
+        }
+        .status-rejected {
+            background: rgba(239, 68, 68, 0.2);
+            color: #ef4444;
+        }
+        .status-cancelled {
+            background: rgba(107, 114, 128, 0.2);
+            color: #9ca3af;
+        }
+    </style>
 
     <script src="js/script.js"></script>
 </body>

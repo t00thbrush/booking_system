@@ -1,5 +1,5 @@
 /* ============================
-   GLASSMORPHISM THEME - JavaScript
+   NEXA THEME - JavaScript
    ============================ */
 
 document.addEventListener('DOMContentLoaded', function() {
@@ -9,7 +9,7 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 // ============================
-// Dark Mode Toggle
+// Dark Mode Toggle - FIXED
 // ============================
 
 function initDarkMode() {
@@ -17,19 +17,21 @@ function initDarkMode() {
     const body = document.body;
     const savedMode = localStorage.getItem('darkMode');
     
-    // Apply saved preference
+    // Initialize dark mode state
     if (savedMode === 'enabled') {
         body.classList.add('dark-mode');
-        updateDarkModeIcon(true);
-    } else if (savedMode === 'disabled') {
+        if (darkModeToggle) darkModeToggle.innerHTML = '☀️';
+    } else {
         body.classList.remove('dark-mode');
-        updateDarkModeIcon(false);
+        if (darkModeToggle) darkModeToggle.innerHTML = '🌙';
     }
     
     // Add click listener
     if (darkModeToggle) {
         darkModeToggle.addEventListener('click', function(e) {
             e.preventDefault();
+            e.stopPropagation();
+            
             body.classList.toggle('dark-mode');
             const isEnabled = body.classList.contains('dark-mode');
             localStorage.setItem('darkMode', isEnabled ? 'enabled' : 'disabled');
@@ -62,8 +64,8 @@ function initTimeSlots() {
                         l.style.background = '';
                     }
                 });
-                label.style.borderColor = '#6366f1';
-                label.style.background = 'rgba(99, 102, 241, 0.2)';
+                label.style.borderColor = '#a3ffcc';
+                label.style.background = 'rgba(163, 255, 204, 0.2)';
             }
         });
     });
@@ -79,8 +81,8 @@ function initSelects() {
     
     selects.forEach(select => {
         select.addEventListener('focus', function() {
-            this.style.borderColor = '#6366f1';
-            this.style.background = 'rgba(255, 255, 255, 0.9)';
+            this.style.borderColor = '#a3ffcc';
+            this.style.background = 'rgba(255, 255, 255, 0.1)';
         });
         select.addEventListener('blur', function() {
             this.style.borderColor = '';
@@ -90,8 +92,8 @@ function initSelects() {
     
     dateInputs.forEach(input => {
         input.addEventListener('focus', function() {
-            this.style.borderColor = '#6366f1';
-            this.style.background = 'rgba(255, 255, 255, 0.95)';
+            this.style.borderColor = '#a3ffcc';
+            this.style.background = 'rgba(255, 255, 255, 0.1)';
         });
         input.addEventListener('blur', function() {
             this.style.borderColor = '';
@@ -124,7 +126,7 @@ function validateForm() {
 
 document.querySelectorAll('.table tbody tr').forEach(row => {
     row.addEventListener('mouseenter', function() {
-        this.style.background = 'rgba(99, 102, 241, 0.05)';
+        this.style.background = 'rgba(163, 255, 204, 0.05)';
     });
     row.addEventListener('mouseleave', function() {
         this.style.background = '';
@@ -166,7 +168,7 @@ document.querySelectorAll('.btn').forEach(button => {
 
 document.querySelectorAll('input, select, textarea').forEach(input => {
     input.addEventListener('focus', function() {
-        this.style.borderColor = '#6366f1';
+        this.style.borderColor = '#a3ffcc';
     });
     
     input.addEventListener('blur', function() {
@@ -179,12 +181,13 @@ document.querySelectorAll('input, select, textarea').forEach(input => {
 // ============================
 
 window.addEventListener('load', function() {
-    const elements = document.querySelectorAll('.card, .booking-form, .facility-card, .alert');
+    const elements = document.querySelectorAll('.card, .booking-form, .facility-card, .alert, .stats-card');
     elements.forEach((el, index) => {
         el.style.opacity = '0';
         el.style.animation = `slideInUp 0.6s ease ${index * 0.1}s forwards`;
     });
 });
+
 // ============================
 // Modal Functions
 // ============================
@@ -275,4 +278,21 @@ function filterCommentsByFacility() {
             item.style.display = itemFacilityId === selectedFacilityId ? 'block' : 'none';
         });
     }
+}
+
+// ============================
+// Utility Functions
+// ============================
+
+function formatDate(date) {
+    const options = { year: 'numeric', month: 'short', day: 'numeric' };
+    return new Date(date).toLocaleDateString('en-US', options);
+}
+
+function formatTime(time) {
+    const [hours, minutes] = time.split(':');
+    const hour = parseInt(hours);
+    const ampm = hour >= 12 ? 'PM' : 'AM';
+    const displayHour = hour % 12 || 12;
+    return `${displayHour}:${minutes} ${ampm}`;
 }

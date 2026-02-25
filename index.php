@@ -68,7 +68,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     <!-- Navigation -->
     <nav class="navbar-transparent">
         <div class="container">
-            <a href="index.php" class="nav-brand-logo">School Booking</a>
+            <a href="index.php" class="nav-brand-logo">Booking System</a>
             <ul class="nav-links">
                 <li><a href="register.php">Register</a></li>
                 <li><button id="darkModeToggle" class="dark-mode-btn" title="Toggle Dark Mode">🌙</button></li>
@@ -82,8 +82,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             <div class="login-grid">
                 <!-- Left Section -->
                 <div class="login-hero-section">
-                    <h1 class="hero-title">WE BUILD DIGITAL</h1>
-                    <p class="hero-subtitle">School Facility Management System</p>
+                    <h1 class="hero-title">School Facility<br>Management System</h1>
+                    <p class="hero-subtitle">Dhammissara National School</p>
                     <p class="hero-description">Modern booking system for managing school facilities efficiently</p>
                     
                     <div class="hero-features">

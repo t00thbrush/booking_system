@@ -3,6 +3,8 @@
    Dark, Modern, Digital Agency Inspired
    ============================ */
 
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Orbitron:wght@400;700;900&family=Space+Mono:wght@400;700&display=swap');
+
 :root {
     /* Primary Colors */
     --primary: #a3ffcc;
@@ -47,11 +49,30 @@ html {
 }
 
 body {
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue', sans-serif;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue', sans-serif;
     background: var(--bg-primary);
     min-height: 100vh;
     color: var(--text-primary);
     line-height: 1.6;
+}
+
+/* ============================
+   TYPOGRAPHY
+   ============================ */
+
+h1, h2, h3, h4, h5, h6 {
+    font-family: 'Orbitron', 'Inter', sans-serif;
+    font-weight: 700;
+}
+
+.hero-title, .page-header h1, .form-title {
+    font-family: 'Orbitron', sans-serif;
+    font-weight: 900;
+    letter-spacing: 2px;
+}
+
+code, pre {
+    font-family: 'Space Mono', monospace;
 }
 
 /* ============================
@@ -115,6 +136,19 @@ body {
     }
     50% {
         box-shadow: 0 0 30px rgba(163, 255, 204, 0.5);
+    }
+}
+
+@keyframes expandRipple {
+    from {
+        width: 20px;
+        height: 20px;
+        opacity: 1;
+    }
+    to {
+        width: 300px;
+        height: 300px;
+        opacity: 0;
     }
 }
 
@@ -235,7 +269,7 @@ nav .container {
 
 .page-header h1 {
     font-size: 2.5rem;
-    font-weight: 800;
+    font-weight: 900;
     color: var(--primary);
     margin-bottom: 0.5rem;
     text-transform: uppercase;
@@ -439,20 +473,21 @@ textarea {
    ============================ */
 
 .card, .booking-form, .facility-card, .stats-card {
-    background: var(--bg-secondary);
-    backdrop-filter: blur(20px);
-    border: 1px solid var(--border-color);
+    background: rgba(255, 255, 255, 0.03);
+    backdrop-filter: blur(30px);
+    border: 1px solid rgba(163, 255, 204, 0.15);
     border-radius: 20px;
     padding: 1.5rem;
-    box-shadow: var(--shadow-sm);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
     transition: all 0.3s ease;
     animation: slideInUp 0.6s ease;
 }
 
 .card:hover, .booking-form:hover, .facility-card:hover, .stats-card:hover {
     transform: translateY(-8px);
-    box-shadow: var(--shadow-lg);
+    box-shadow: 0 15px 50px rgba(163, 255, 204, 0.2);
     border-color: rgba(163, 255, 204, 0.3);
+    background: rgba(255, 255, 255, 0.05);
 }
 
 .booking-form h2, .facility-card h3, .stats-card h3, .card h3 {
@@ -605,6 +640,17 @@ textarea {
     position: sticky;
     top: 0;
     z-index: 1000;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1.5rem 2rem;
+}
+
+.navbar-transparent .container {
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
 }
 
 .nav-brand-logo {
@@ -702,7 +748,7 @@ textarea {
 
 .form-title {
     font-size: 1.8rem;
-    font-weight: 700;
+    font-weight: 900;
     color: var(--primary);
     margin-bottom: 0.5rem;
     text-transform: uppercase;
@@ -842,8 +888,125 @@ footer a:hover {
 }
 
 /* ============================
+   STATS CARDS GRID
+   ============================ */
+
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+}
+
+.stats-card {
+    text-align: center;
+}
+
+.stats-card .stat-value {
+    font-size: 2.5rem;
+    font-weight: 900;
+    color: var(--primary);
+    margin: 1rem 0;
+}
+
+.stats-card .stat-label {
+    font-size: 0.9rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: var(--text-secondary);
+}
+
+/* ============================
+   ADMIN DASHBOARD SECTIONS
+   ============================ */
+
+.admin-section {
+    margin-bottom: 3rem;
+}
+
+.section-title {
+    font-size: 1.5rem;
+    font-weight: 900;
+    color: var(--primary);
+    margin-bottom: 1.5rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+    flex-wrap: wrap;
+    gap: 1rem;
+}
+
+.search-filters {
+    display: flex;
+    gap: 1rem;
+    flex-wrap: wrap;
+    margin-bottom: 1.5rem;
+}
+
+.search-filters input,
+.search-filters select {
+    flex: 1;
+    min-width: 150px;
+}
+
+/* ============================
+   BOOKING LAYOUT
+   ============================ */
+
+.booking-container {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2rem;
+}
+
+.booking-section {
+    display: flex;
+    flex-direction: column;
+}
+
+.booking-section h2 {
+    font-size: 1.3rem;
+    font-weight: 900;
+    color: var(--primary);
+    margin-bottom: 1rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.time-input-group {
+    display: flex;
+    gap: 1rem;
+    align-items: center;
+}
+
+.time-input-group input {
+    flex: 1;
+}
+
+.time-input-group label {
+    white-space: nowrap;
+    margin-bottom: 0;
+}
+
+/* ============================
    RESPONSIVE DESIGN
    ============================ */
+
+@media (max-width: 1024px) {
+    .booking-container {
+        grid-template-columns: 1fr;
+    }
+
+    .stats-grid {
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    }
+}
 
 @media (max-width: 768px) {
     .login-grid {
@@ -875,6 +1038,19 @@ footer a:hover {
     .page-header h1 {
         font-size: 2rem;
     }
+
+    .search-filters {
+        flex-direction: column;
+    }
+
+    .search-filters input,
+    .search-filters select {
+        width: 100%;
+    }
+
+    .navbar-transparent {
+        padding: 1rem;
+    }
 }
 
 @media (max-width: 480px) {
@@ -897,4 +1073,68 @@ footer a:hover {
     .nav-links {
         gap: 0.5rem;
     }
+
+    .stats-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* ============================
+   MODAL STYLES
+   ============================ */
+
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 2000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.7);
+    backdrop-filter: blur(5px);
+}
+
+.modal.show {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.modal-content {
+    background: rgba(0, 0, 0, 0.8);
+    backdrop-filter: blur(30px);
+    border: 1px solid rgba(163, 255, 204, 0.2);
+    border-radius: 20px;
+    padding: 2rem;
+    max-width: 500px;
+    width: 90%;
+    animation: slideInUp 0.3s ease;
+}
+
+.modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+}
+
+.modal-title {
+    font-size: 1.5rem;
+    font-weight: 900;
+    color: var(--primary);
+    text-transform: uppercase;
+}
+
+.modal-close {
+    background: none;
+    border: none;
+    color: var(--primary);
+    font-size: 1.5rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.modal-close:hover {
+    transform: rotate(90deg);
 }
