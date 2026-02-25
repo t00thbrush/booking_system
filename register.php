@@ -62,14 +62,26 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Register - Online Booking System</title>
+    <title>Register - School Booking System</title>
     <link rel="stylesheet" href="css/style.css">
 </head>
-<body>
+<body class="register-page">
+    <!-- Animated Water Bubbles Background -->
+    <div class="bubble-container">
+        <div class="bubble bubble-1"></div>
+        <div class="bubble bubble-2"></div>
+        <div class="bubble bubble-3"></div>
+        <div class="bubble bubble-4"></div>
+        <div class="bubble bubble-5"></div>
+        <div class="bubble bubble-6"></div>
+        <div class="bubble bubble-7"></div>
+        <div class="bubble bubble-8"></div>
+    </div>
+
     <!-- Navigation -->
-    <nav>
+    <nav class="navbar-transparent">
         <div class="container">
-            <a href="index.php" class="nav-brand">📅 Booking System</a>
+            <a href="index.php" class="nav-brand-logo">School Booking</a>
             <ul class="nav-links">
                 <li><a href="index.php">Login</a></li>
                 <li><button id="darkModeToggle" class="dark-mode-btn" title="Toggle Dark Mode">🌙</button></li>
@@ -77,121 +89,144 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         </div>
     </nav>
 
-    <!-- Page Header -->
-    <div class="page-header">
-        <div class="container">
-            <h1>Create Account</h1>
-            <p>Register to book school facilities</p>
-        </div>
-    </div>
-
     <!-- Main Content -->
-    <div class="container">
-        <div class="form-container">
-            <?php if (!empty($error)): ?>
-                <div class="alert alert-error">
-                    <?php echo htmlspecialchars($error); ?>
-                </div>
-            <?php endif; ?>
-
-            <?php if (!empty($success)): ?>
-                <div class="alert alert-success">
-                    <?php echo htmlspecialchars($success); ?>
-                    <br><br>
-                    <a href="index.php" class="btn btn-primary">Go to Login</a>
-                </div>
-            <?php endif; ?>
-
-            <?php if (empty($success)): ?>
-            <form method="POST" action="" id="registerForm">
-                <div class="form-group">
-                    <label for="name">Full Name *</label>
-                    <input 
-                        type="text" 
-                        id="name" 
-                        name="name" 
-                        value="<?php echo htmlspecialchars($name ?? ''); ?>"
-                        required 
-                        placeholder="John Doe"
-                    >
+    <div class="login-hero">
+        <div class="container">
+            <div class="login-grid">
+                <!-- Left Section -->
+                <div class="login-hero-section">
+                    <h1 class="hero-title">JOIN OUR COMMUNITY</h1>
+                    <p class="hero-subtitle">Create Your Account</p>
+                    <p class="hero-description">Register as a Student, Teacher, or External user to access our facility booking system</p>
+                    
+                    <div class="hero-features">
+                        <div class="feature-item">
+                            <span class="feature-icon">🎓</span>
+                            <span>Student Access</span>
+                        </div>
+                        <div class="feature-item">
+                            <span class="feature-icon">👨‍🏫</span>
+                            <span>Teacher Control</span>
+                        </div>
+                        <div class="feature-item">
+                            <span class="feature-icon">👥</span>
+                            <span>External Access</span>
+                        </div>
+                    </div>
                 </div>
 
-                <div class="form-group">
-                    <label for="username">Username *</label>
-                    <input 
-                        type="text" 
-                        id="username" 
-                        name="username" 
-                        value="<?php echo htmlspecialchars($username ?? ''); ?>"
-                        required 
-                        placeholder="johndoe"
-                        minlength="3"
-                    >
-                    <small class="text-muted">Minimum 3 characters, letters, numbers, and underscores only</small>
+                <!-- Right Section - Registration Form -->
+                <div class="login-form-section">
+                    <div class="form-card">
+                        <h2 class="form-title">Create Account</h2>
+                        <p class="form-subtitle">Register to book school facilities</p>
+
+                        <?php if (!empty($error)): ?>
+                            <div class="alert alert-error">
+                                <span class="alert-icon">✗</span>
+                                <span><?php echo htmlspecialchars($error); ?></span>
+                            </div>
+                        <?php endif; ?>
+
+                        <?php if (!empty($success)): ?>
+                            <div class="alert alert-success">
+                                <span class="alert-icon">✓</span>
+                                <span><?php echo htmlspecialchars($success); ?></span>
+                            </div>
+                        <?php endif; ?>
+
+                        <?php if (empty($success)): ?>
+                        <form method="POST" action="" id="registerForm" class="login-form">
+                            <div class="form-group">
+                                <label for="name" class="form-label">Full Name</label>
+                                <input 
+                                    type="text" 
+                                    id="name" 
+                                    name="name" 
+                                    value="<?php echo htmlspecialchars($name ?? ''); ?>"
+                                    required 
+                                    placeholder="John Doe"
+                                    class="form-input"
+                                >
+                            </div>
+
+                            <div class="form-group">
+                                <label for="username" class="form-label">Username</label>
+                                <input 
+                                    type="text" 
+                                    id="username" 
+                                    name="username" 
+                                    value="<?php echo htmlspecialchars($username ?? ''); ?>"
+                                    required 
+                                    placeholder="johndoe"
+                                    minlength="3"
+                                    class="form-input"
+                                >
+                                <small class="form-hint">Min 3 chars, letters, numbers, underscores only</small>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="email" class="form-label">Email</label>
+                                <input 
+                                    type="email" 
+                                    id="email" 
+                                    name="email" 
+                                    value="<?php echo htmlspecialchars($email ?? ''); ?>"
+                                    required 
+                                    placeholder="john@example.com"
+                                    class="form-input"
+                                >
+                            </div>
+
+                            <div class="form-group">
+                                <label for="role" class="form-label">Account Type</label>
+                                <select id="role" name="role" required class="form-input">
+                                    <option value="Student" <?php if (($role ?? '')=='Student') echo 'selected'; ?>>Student</option>
+                                    <option value="Teacher" <?php if (($role ?? '')=='Teacher') echo 'selected'; ?>>Teacher (requires approval)</option>
+                                    <option value="External" <?php if (($role ?? '')=='External') echo 'selected'; ?>>External</option>
+                                </select>
+                                <small class="form-hint">Teachers require admin approval before login</small>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="password" class="form-label">Password</label>
+                                <input 
+                                    type="password" 
+                                    id="password" 
+                                    name="password" 
+                                    required 
+                                    placeholder="••••••"
+                                    minlength="6"
+                                    class="form-input"
+                                >
+                                <small class="form-hint">Minimum 6 characters</small>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="confirm_password" class="form-label">Confirm Password</label>
+                                <input 
+                                    type="password" 
+                                    id="confirm_password" 
+                                    name="confirm_password" 
+                                    required 
+                                    placeholder="••••••"
+                                    minlength="6"
+                                    class="form-input"
+                                >
+                            </div>
+
+                            <button type="submit" class="btn btn-primary btn-block btn-lg">Create Account</button>
+                        </form>
+
+                        <div class="form-footer">
+                            <p>Already have an account? <a href="index.php" class="link-primary">Login here</a></p>
+                        </div>
+                        <?php endif; ?>
+                    </div>
                 </div>
-
-                <div class="form-group">
-                    <label for="email">Email *</label>
-                    <input 
-                        type="email" 
-                        id="email" 
-                        name="email" 
-                        value="<?php echo htmlspecialchars($email ?? ''); ?>"
-                        required 
-                        placeholder="john@example.com"
-                    >
-                </div>
-
-                <div class="form-group">
-                    <label for="role">Role *</label>
-                    <select id="role" name="role" required style="width:100%; padding:10px; border-radius:6px;">
-                        <option value="Student" <?php if (($role ?? '')=='Student') echo 'selected'; ?>>Student</option>
-                        <option value="Teacher" <?php if (($role ?? '')=='Teacher') echo 'selected'; ?>>Teacher (requires admin approval)</option>
-                        <option value="External" <?php if (($role ?? '')=='External') echo 'selected'; ?>>External</option>
-                    </select>
-                    <small class="text-muted">Teacher accounts require admin approval before they can login.</small>
-                </div>
-
-                <div class="form-group">
-                    <label for="password">Password *</label>
-                    <input 
-                        type="password" 
-                        id="password" 
-                        name="password" 
-                        required 
-                        placeholder="••••••"
-                        minlength="6"
-                    >
-                    <small class="text-muted">Minimum 6 characters</small>
-                </div>
-
-                <div class="form-group">
-                    <label for="confirm_password">Confirm Password *</label>
-                    <input 
-                        type="password" 
-                        id="confirm_password" 
-                        name="confirm_password" 
-                        required 
-                        placeholder="••••••"
-                        minlength="6"
-                    >
-                </div>
-
-                <button type="submit" class="btn btn-primary btn-block">Register</button>
-            </form>
-
-            <p class="text-center" style="margin-top: 20px;">
-                Already have an account? <a href="index.php" style="color: var(--primary-color); text-decoration: none; font-weight: 600;">Login here</a>
-            </p>
-            <?php endif; ?>
+            </div>
         </div>
     </div>
-
-    <!-- Footer -->
-    <footer>
-        <p>&copy; 2026 Online Booking System. All rights reserved.</p>
-        <p>School Facilities Management</p>
-    </footer>
 
     <script src="js/script.js"></script>
 </body>

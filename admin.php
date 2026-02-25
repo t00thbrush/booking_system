@@ -15,6 +15,7 @@ if (isset($_GET['logout']) && $_GET['logout'] == 'true') {
 $message = '';
 $error = '';
 $filter_status = $_GET['status'] ?? 'all';
+$active_tab = $_GET['tab'] ?? 'bookings';
 
 // Search/filter parameters
 $search_facility = $_GET['search_facility'] ?? '';
@@ -27,7 +28,10 @@ $search_text = $_GET['search_text'] ?? '';
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $action = $_POST['action'] ?? '';
     $booking_id = (int)($_POST['booking_id'] ?? 0);
+    $teacher_id = (int)($_POST['teacher_id'] ?? 0);
+    $facility_id = (int)($_POST['facility_id'] ?? 0);
 
+    // Booking actions
     if ($action == 'approve') {
         if (update_booking_status($booking_id, 'Approved')) {
             $message = 'Booking approved successfully';
@@ -40,12 +44,38 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         } else {
             $error = 'Error rejecting booking';
         }
+    } 
+    // Teacher approval
+    elseif ($action == 'approve_teacher') {
+        if (approve_user($teacher_id)) {
+            $message = 'Teacher account approved successfully';
+        } else {
+            $error = 'Error approving teacher';
+        }
+    }
+    // Teacher facility assignment
+    elseif ($action == 'assign_facility') {
+        if (assign_facility_to_teacher($teacher_id, $facility_id)) {
+            $message = 'Facility assigned to teacher successfully';
+        } else {
+            $error = 'Error assigning facility to teacher';
+        }
+    }
+    // Teacher facility revocation
+    elseif ($action == 'revoke_facility') {
+        if (revoke_facility_from_teacher($teacher_id, $facility_id)) {
+            $message = 'Facility access revoked successfully';
+        } else {
+            $error = 'Error revoking facility access';
+        }
     }
 }
 
 // Get statistics
 $stats = get_booking_stats();
 $facilities = get_facilities();
+$pending_teachers = get_pending_teachers();
+$approved_teachers = get_approved_teachers();
 
 // Get filtered bookings
 if (!empty($search_facility) || !empty($search_user) || !empty($search_date_from) || !empty($search_date_to) || !empty($search_text)) {
@@ -84,6 +114,42 @@ foreach ($facilities as $facility) {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin Dashboard - Online Booking System</title>
     <link rel="stylesheet" href="css/style.css">
+    <style>
+        .tab-navigation {
+            display: flex;
+            gap: 1rem;
+            border-bottom: 2px solid var(--border-color);
+            margin-bottom: 2rem;
+            padding-bottom: 1rem;
+        }
+        .tab-btn {
+            background: none;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--text-secondary);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border-bottom: 3px solid transparent;
+            position: relative;
+            bottom: -1rem;
+            margin-bottom: -1rem;
+        }
+        .tab-btn:hover {
+            color: var(--primary);
+        }
+        .tab-btn.active {
+            color: var(--primary);
+            border-color: var(--primary);
+        }
+        .tab-content {
+            display: none;
+        }
+        .tab-content.active {
+            display: block;
+        }
+    </style>
 </head>
 <body>
     <!-- Navigation -->
@@ -104,7 +170,7 @@ foreach ($facilities as $facility) {
     <div class="page-header">
         <div class="container">
             <h1>Administrator Dashboard</h1>
-            <p>Manage bookings, facilities, and user accounts</p>
+            <p>Manage bookings, facilities, teachers, and user accounts</p>
         </div>
     </div>
 
@@ -121,6 +187,16 @@ foreach ($facilities as $facility) {
                 ✗ <?php echo htmlspecialchars($error); ?>
             </div>
         <?php endif; ?>
+
+        <!-- Tab Navigation -->
+        <div class="tab-navigation">
+            <button class="tab-btn <?php echo $active_tab === 'bookings' ? 'active' : ''; ?>" onclick="switchTab(event, 'bookings')">📅 Bookings</button>
+            <button class="tab-btn <?php echo $active_tab === 'teachers' ? 'active' : ''; ?>" onclick="switchTab(event, 'teachers')">👨‍🏫 Teachers <?php echo count($pending_teachers) > 0 ? '(' . count($pending_teachers) . ')' : ''; ?></button>
+            <button class="tab-btn <?php echo $active_tab === 'facilities' ? 'active' : ''; ?>" onclick="switchTab(event, 'facilities')">🏛️ Facilities</button>
+        </div>
+
+        <!-- Bookings Tab -->
+        <div id="bookings-tab" class="tab-content <?php echo $active_tab === 'bookings' || $active_tab === '' ? 'active' : ''; ?>">
 
         <!-- Statistics -->
         <div class="dashboard-grid">
@@ -290,6 +366,129 @@ foreach ($facilities as $facility) {
             <?php endif; ?>
             </div>
         </div>
+        </div><!-- End Bookings Tab -->
+
+        <!-- Teachers Tab -->
+        <div id="teachers-tab" class="tab-content <?php echo $active_tab === 'teachers' ? 'active' : ''; ?>">
+            <!-- Pending Teachers Section -->
+            <div class="card" style="margin-bottom: 30px;">
+                <div class="card-body">
+                    <h2 style="margin-bottom: 20px;">⏳ Pending Teacher Approvals (<?php echo count($pending_teachers); ?>)</h2>
+                    <?php if (empty($pending_teachers)): ?>
+                        <p class="text-muted" style="text-align: center; padding: 40px 0;">No pending teacher approvals.</p>
+                    <?php else: ?>
+                        <div style="overflow-x: auto;">
+                            <table class="table">
+                                <thead>
+                                    <tr>
+                                        <th>Name</th>
+                                        <th>Username</th>
+                                        <th>Email</th>
+                                        <th>Applied Date</th>
+                                        <th>Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <?php foreach ($pending_teachers as $teacher): ?>
+                                        <tr>
+                                            <td><?php echo htmlspecialchars($teacher['name']); ?></td>
+                                            <td><?php echo htmlspecialchars($teacher['username']); ?></td>
+                                            <td><?php echo htmlspecialchars($teacher['email']); ?></td>
+                                            <td><?php echo date('M d, Y', strtotime($teacher['created_at'])); ?></td>
+                                            <td style="text-align: right;">
+                                                <form method="POST" style="display: inline;">
+                                                    <input type="hidden" name="teacher_id" value="<?php echo $teacher['user_id']; ?>">
+                                                    <input type="hidden" name="action" value="approve_teacher">
+                                                    <button type="submit" class="btn btn-success btn-sm">Approve</button>
+                                                </form>
+                                            </td>
+                                        </tr>
+                                    <?php endforeach; ?>
+                                </tbody>
+                            </table>
+                        </div>
+                    <?php endif; ?>
+                </div>
+            </div>
+
+            <!-- Approved Teachers Section -->
+            <div class="card">
+                <div class="card-body">
+                    <h2 style="margin-bottom: 20px;">✅ Approved Teachers (<?php echo count($approved_teachers); ?>)</h2>
+                    <?php if (empty($approved_teachers)): ?>
+                        <p class="text-muted" style="text-align: center; padding: 40px 0;">No approved teachers yet.</p>
+                    <?php else: ?>
+                        <div style="overflow-x: auto;">
+                            <table class="table">
+                                <thead>
+                                    <tr>
+                                        <th>Name</th>
+                                        <th>Username</th>
+                                        <th>Email</th>
+                                        <th>Assigned Facilities</th>
+                                        <th>Manage</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <?php foreach ($approved_teachers as $teacher): ?>
+                                        <?php 
+                                        $teacher_facilities = get_teacher_facilities($teacher['user_id']);
+                                        $facility_names = array_map(function($f) { return $f['facility_name']; }, $teacher_facilities);
+                                        ?>
+                                        <tr>
+                                            <td><?php echo htmlspecialchars($teacher['name']); ?></td>
+                                            <td><?php echo htmlspecialchars($teacher['username']); ?></td>
+                                            <td><?php echo htmlspecialchars($teacher['email']); ?></td>
+                                            <td>
+                                                <?php if (empty($facility_names)): ?>
+                                                    <span class="text-muted">No facilities assigned</span>
+                                                <?php else: ?>
+                                                    <?php echo htmlspecialchars(implode(', ', $facility_names)); ?>
+                                                <?php endif; ?>
+                                            </td>
+                                            <td style="text-align: right;">
+                                                <button class="btn btn-primary btn-sm" onclick="showFacilityModal(<?php echo $teacher['user_id']; ?>, '<?php echo htmlspecialchars($teacher['name']); ?>')">Edit Access</button>
+                                            </td>
+                                        </tr>
+                                    <?php endforeach; ?>
+                                </tbody>
+                            </table>
+                        </div>
+                    <?php endif; ?>
+                </div>
+            </div>
+        </div><!-- End Teachers Tab -->
+
+        <!-- Facilities Tab -->
+        <div id="facilities-tab" class="tab-content <?php echo $active_tab === 'facilities' ? 'active' : ''; ?>">
+            <div class="card">
+                <div class="card-body">
+                    <h2 style="margin-bottom: 20px;">🏛️ School Facilities</h2>
+                    <div style="overflow-x: auto;">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>Facility Name</th>
+                                    <th>Capacity</th>
+                                    <th>Confirmed Bookings</th>
+                                    <th>Description</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <?php foreach ($facilities as $facility): ?>
+                                    <tr>
+                                        <td><strong><?php echo htmlspecialchars($facility['facility_name']); ?></strong></td>
+                                        <td><?php echo $facility['capacity']; ?> people</td>
+                                        <td><?php echo $facility_stats[$facility['facility_id']] ?? 0; ?></td>
+                                        <td><?php echo htmlspecialchars(substr($facility['description'] ?? '', 0, 60)); ?>...</td>
+                                    </tr>
+                                <?php endforeach; ?>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div><!-- End Facilities Tab -->
 
         <!-- Reports Section -->
         <div style="margin-top: 40px; display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 40px;">
@@ -320,6 +519,90 @@ foreach ($facilities as $facility) {
         <p>School Facilities Management</p>
     </footer>
 
+    <!-- Facility Assignment Modal -->
+    <div id="facilityModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 2000; align-items: center; justify-content: center;">
+        <div style="background: white; border-radius: 12px; padding: 2rem; max-width: 500px; width: 90%; box-shadow: 0 20px 60px rgba(0,0,0,0.3);">
+            <h2 id="modalTitle" style="margin-bottom: 1.5rem; color: #1e293b;">Assign Facilities</h2>
+            <form method="POST" id="facilityForm" style="display: flex; flex-direction: column; gap: 1rem;">
+                <input type="hidden" name="teacher_id" id="modalTeacherId" value="">
+                
+                <div>
+                    <label style="display: block; margin-bottom: 0.5rem; font-weight: 600;">Select Facility</label>
+                    <select name="facility_id" id="facilitySelect" style="width: 100%; padding: 0.875rem; border: 2px solid #e2e8f0; border-radius: 8px; font-size: 0.95rem;">
+                        <option value="">-- Choose a facility --</option>
+                        <?php foreach ($facilities as $facility): ?>
+                            <option value="<?php echo $facility['facility_id']; ?>"><?php echo htmlspecialchars($facility['facility_name']); ?></option>
+                        <?php endforeach; ?>
+                    </select>
+                </div>
+
+                <div style="display: flex; gap: 1rem; justify-content: flex-end;">
+                    <button type="button" class="btn btn-danger" onclick="closeFacilityModal()">Close</button>
+                    <button type="submit" class="btn btn-primary" name="action" value="assign_facility">Assign Facility</button>
+                </div>
+            </form>
+
+            <div id="assignedFacilitiesList" style="margin-top: 2rem; border-top: 1px solid #e2e8f0; padding-top: 1rem;">
+                <h3 style="margin-bottom: 1rem; color: #1e293b;">Currently Assigned Facilities</h3>
+                <div id="assignedFacilitiesContent"></div>
+            </div>
+        </div>
+    </div>
+
     <script src="js/script.js"></script>
+    <script>
+        function switchTab(event, tabName) {
+            event.preventDefault();
+            
+            // Hide all tab contents
+            document.querySelectorAll('.tab-content').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            
+            // Remove active class from all buttons
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            
+            // Show the selected tab
+            document.getElementById(tabName + '-tab').classList.add('active');
+            
+            // Add active class to clicked button
+            event.target.classList.add('active');
+            
+            // Update URL parameter
+            window.history.pushState(null, '', '?tab=' + tabName);
+        }
+
+        function showFacilityModal(teacherId, teacherName) {
+            document.getElementById('modalTeacherId').value = teacherId;
+            document.getElementById('modalTitle').textContent = 'Manage Facilities for ' + teacherName;
+            document.getElementById('facilityModal').style.display = 'flex';
+            
+            // Load assigned facilities via AJAX
+            loadAssignedFacilities(teacherId);
+        }
+
+        function closeFacilityModal() {
+            document.getElementById('facilityModal').style.display = 'none';
+        }
+
+        function loadAssignedFacilities(teacherId) {
+            // Display placeholder
+            document.getElementById('assignedFacilitiesContent').innerHTML = '<p class="text-muted">Loading...</p>';
+            
+            // In a real application, you would fetch this via AJAX
+            // For now, we'll just show a message
+            document.getElementById('assignedFacilitiesContent').innerHTML = '<p class="text-muted">Refresh the page to see updated facility assignments</p>';
+        }
+
+        // Close modal when clicking outside
+        window.onclick = function(event) {
+            const modal = document.getElementById('facilityModal');
+            if (event.target == modal) {
+                closeFacilityModal();
+            }
+        }
+    </script>
 </body>
 </html>
