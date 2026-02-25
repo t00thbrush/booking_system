@@ -3,7 +3,7 @@
    ============================ */
 
 document.addEventListener('DOMContentLoaded', function() {
-    initDarkMode();
+    initThemeToggle();
     initTimeSlots();
     initSelects();
 });
@@ -12,39 +12,41 @@ document.addEventListener('DOMContentLoaded', function() {
 // Dark Mode Toggle - FIXED
 // ============================
 
-function initDarkMode() {
-    const darkModeToggle = document.getElementById('darkModeToggle');
-    const body = document.body;
-    const savedMode = localStorage.getItem('darkMode');
-    
-    // Initialize dark mode state
-    if (savedMode === 'enabled') {
-        body.classList.add('dark-mode');
-        if (darkModeToggle) darkModeToggle.innerHTML = '☀️';
-    } else {
-        body.classList.remove('dark-mode');
-        if (darkModeToggle) darkModeToggle.innerHTML = '🌙';
-    }
-    
-    // Add click listener
-    if (darkModeToggle) {
-        darkModeToggle.addEventListener('click', function(e) {
-            e.preventDefault();
-            e.stopPropagation();
-            
-            body.classList.toggle('dark-mode');
-            const isEnabled = body.classList.contains('dark-mode');
-            localStorage.setItem('darkMode', isEnabled ? 'enabled' : 'disabled');
-            updateDarkModeIcon(isEnabled);
-        });
-    }
-}
-
-function updateDarkModeIcon(isDarkMode) {
+function initThemeToggle() {
     const toggle = document.getElementById('darkModeToggle');
-    if (toggle) {
-        toggle.innerHTML = isDarkMode ? '☀️' : '🌙';
+    const body = document.body;
+    const savedTheme = localStorage.getItem('theme');
+
+    // Apply saved theme, default to dark (existing look)
+    if (savedTheme === 'light') {
+        body.classList.remove('dark-mode');
+        body.classList.add('light-mode');
+        if (toggle) toggle.innerHTML = '🌙';
+    } else {
+        body.classList.remove('light-mode');
+        body.classList.add('dark-mode');
+        if (toggle) toggle.innerHTML = '☀️';
     }
+
+    if (!toggle) return;
+
+    toggle.addEventListener('click', function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+
+        const isDark = body.classList.contains('dark-mode');
+        if (isDark) {
+            body.classList.remove('dark-mode');
+            body.classList.add('light-mode');
+            localStorage.setItem('theme', 'light');
+            toggle.innerHTML = '🌙';
+        } else {
+            body.classList.remove('light-mode');
+            body.classList.add('dark-mode');
+            localStorage.setItem('theme', 'dark');
+            toggle.innerHTML = '☀️';
+        }
+    });
 }
 
 // ============================

@@ -348,6 +348,8 @@ input, select, textarea {
     transition: all 0.3s ease;
     backdrop-filter: blur(10px);
     appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
 }
 
 input::placeholder {
@@ -367,6 +369,31 @@ select {
     background-position: right 0.75rem center;
     background-size: 20px;
     padding-right: 2.5rem;
+}
+
+/* Ensure select text and options are readable in both themes */
+select, select:focus {
+    color: var(--text-primary);
+    background-color: var(--bg-secondary);
+}
+
+select::-ms-expand { display: none; }
+
+/* Options are rendered by the UA but we can still set sane defaults */
+option, optgroup {
+    color: var(--text-primary);
+    background: var(--bg-primary);
+}
+
+/* When using translucent backgrounds ensure contrast on dark backgrounds */
+.dark-mode select, .dark-mode select:focus {
+    background-color: rgba(255,255,255,0.06);
+    color: var(--text-primary);
+}
+
+.dark-mode option, .dark-mode optgroup {
+    background-color: var(--bg-primary);
+    color: var(--text-primary);
 }
 
 input[type="date"] {
@@ -799,6 +826,94 @@ textarea {
     box-shadow: 0 0 0 3px rgba(163, 255, 204, 0.2);
     background: rgba(255, 255, 255, 0.08);
 }
+
+/* ============================
+   Light Mode Overrides
+   ============================ */
+
+.light-mode {
+    --primary: #059669;
+    --primary-dark: #047857;
+    --primary-light: #8ef7cf;
+
+    --bg-primary: #f8fafc;
+    --bg-secondary: rgba(2, 6, 23, 0.03);
+    --bg-tertiary: rgba(2, 6, 23, 0.06);
+
+    --text-primary: #0f1724;
+    --text-secondary: rgba(15, 23, 36, 0.7);
+    --text-light: rgba(15, 23, 36, 0.5);
+
+    --border-color: rgba(15, 23, 36, 0.08);
+    --glass-bg: rgba(255, 255, 255, 0.8);
+    --glass-border: rgba(2, 6, 23, 0.04);
+
+    --shadow-sm: 0 4px 6px rgba(2, 6, 23, 0.06);
+    --shadow-md: 0 10px 25px rgba(2, 6, 23, 0.08);
+    --shadow-lg: 0 20px 40px rgba(2, 6, 23, 0.09);
+}
+
+.light-mode body {
+    background: var(--bg-primary);
+    color: var(--text-primary);
+    transition: background 250ms ease, color 250ms ease;
+}
+
+.light-mode nav, .light-mode .navbar-transparent {
+    background: rgba(255, 255, 255, 0.8);
+    border-bottom: 1px solid var(--border-color);
+    box-shadow: var(--shadow-sm);
+}
+
+.light-mode .nav-brand, .light-mode .nav-brand-logo, .light-mode .nav-links a, .light-mode .nav-links li {
+    color: var(--text-primary);
+}
+
+.light-mode .dark-mode-btn {
+    background: rgba(5, 150, 105, 0.08);
+    color: var(--primary);
+}
+
+.light-mode .card, .light-mode .booking-form, .light-mode .facility-card, .light-mode .stats-card {
+    background: #ffffff;
+    border: 1px solid var(--border-color);
+    box-shadow: var(--shadow-sm);
+    color: var(--text-primary);
+}
+
+.light-mode .form-card {
+    background: #ffffff;
+    border: 1px solid var(--border-color);
+    box-shadow: var(--shadow-md);
+    color: var(--text-primary);
+}
+
+.light-mode input, .light-mode select, .light-mode textarea, .light-mode .form-input {
+    background: #ffffff;
+    color: var(--text-primary);
+    border: 1px solid var(--border-color);
+}
+
+.light-mode .bubble-container {
+    background: linear-gradient(135deg, #f8fafc 0%, #ecfdf5 100%);
+}
+
+.light-mode .hero-title, .light-mode .page-header h1, .light-mode .form-title {
+    color: var(--primary);
+}
+
+.light-mode .alert {
+    background: rgba(2, 6, 23, 0.03);
+    color: var(--text-primary);
+}
+
+.light-mode .logout-btn {
+    background: linear-gradient(135deg, var(--danger) 0%, #dc2626 100%);
+    color: #fff;
+}
+
+.light-mode .status-badge { border: 0.5px solid rgba(0,0,0,0.04); }
+
 
 .form-hint {
     display: block;
