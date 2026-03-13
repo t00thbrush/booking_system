@@ -37,6 +37,7 @@ $users = mysqli_fetch_all($users_res, MYSQLI_ASSOC);
     <meta charset="utf-8">
     <title>Database - Admin</title>
     <link rel="stylesheet" href="css/style.css">
+    <link rel="icon" href="favicon.ico" type="image/x-icon">
 </head>
 <body>
     <nav>
@@ -49,6 +50,17 @@ $users = mysqli_fetch_all($users_res, MYSQLI_ASSOC);
             </ul>
         </div>
     </nav>
+        <!-- Animated Water Bubbles Background -->
+    <div class="bubble-container">
+        <div class="bubble bubble-1"></div>
+        <div class="bubble bubble-2"></div>
+        <div class="bubble bubble-3"></div>
+        <div class="bubble bubble-4"></div>
+        <div class="bubble bubble-5"></div>
+        <div class="bubble bubble-6"></div>
+        <div class="bubble bubble-7"></div>
+        <div class="bubble bubble-8"></div>
+    </div>
 
     <div class="container">
         <h2>Database Management</h2>

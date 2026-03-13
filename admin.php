@@ -114,6 +114,18 @@ foreach ($facilities as $facility) {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin Dashboard - Booking System</title>
     <link rel="stylesheet" href="css/style.css">
+    <link rel="icon" href="favicon.ico" type="image/x-icon">
+        <!-- Animated Water Bubbles Background -->
+    <div class="bubble-container">
+        <div class="bubble bubble-1"></div>
+        <div class="bubble bubble-2"></div>
+        <div class="bubble bubble-3"></div>
+        <div class="bubble bubble-4"></div>
+        <div class="bubble bubble-5"></div>
+        <div class="bubble bubble-6"></div>
+        <div class="bubble bubble-7"></div>
+        <div class="bubble bubble-8"></div>
+    </div>
     <style>
         .tab-navigation {
             display: flex;
@@ -135,14 +147,16 @@ foreach ($facilities as $facility) {
             border-bottom: 3px solid transparent;
             position: relative;
             bottom: -1rem;
-            margin-bottom: -1rem;
+            margin-bottom: 1rem;
             text-transform: uppercase;
             letter-spacing: 0.5px;
         }
         .tab-btn:hover {
+        
             color: var(--primary);
         }
         .tab-btn.active {
+        
             color: var(--primary);
             border-color: var(--primary);
         }
@@ -310,10 +324,12 @@ foreach ($facilities as $facility) {
                         
                         <div style="display: flex; gap: 0.5rem;">
                             <button type="submit" class="btn btn-primary btn-sm">🔍 Search</button>
-                            <a href="admin.php?tab=bookings" class="btn btn-sm" style="background: rgba(255, 255, 255, 0.1); color: var(--text-secondary);">Reset</a>
+                            <a href="admin.php?tab=bookings" class="btn btn-sm" style="background: rgba(255, 255, 255, 0.1); color: var(--text-secondary); padding: 1rem 1rem;">Reset</a>
                         </div>
                     </form>
                 </div>
+
+                <br>
 
                 <!-- Bookings Table -->
                 <?php if (empty($all_bookings)): ?>
@@ -480,7 +496,7 @@ foreach ($facilities as $facility) {
                 </div>
             </div>
         </div><!-- End Facilities Tab -->
-
+        
         <!-- Summary Tab -->
         <div id="summary-tab" class="tab-content <?php echo $active_tab === 'summary' ? 'active' : ''; ?>">
             <div class="admin-section">

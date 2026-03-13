@@ -95,6 +95,18 @@ if (!empty($search_facility) || !empty($search_status) || !empty($search_date_fr
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Book Facilities - Booking System</title>
     <link rel="stylesheet" href="css/style.css">
+    <link rel="icon" href="favicon.ico" type="image/x-icon">
+        <!-- Animated Water Bubbles Background -->
+    <div class="bubble-container">
+        <div class="bubble bubble-1"></div>
+        <div class="bubble bubble-2"></div>
+        <div class="bubble bubble-3"></div>
+        <div class="bubble bubble-4"></div>
+        <div class="bubble bubble-5"></div>
+        <div class="bubble bubble-6"></div>
+        <div class="bubble bubble-7"></div>
+        <div class="bubble bubble-8"></div>
+    </div>
     <style>
         .booking-grid {
             display: grid;
@@ -300,6 +312,8 @@ if (!empty($search_facility) || !empty($search_status) || !empty($search_date_fr
                 </form>
             </div>
 
+            <br>
+
             <?php if (empty($user_bookings)): ?>
                 <div class="card" style="text-align: center; padding: 3rem;">
                     <p style="color: var(--text-secondary); margin-bottom: 1rem;">No bookings found. Create your first booking above!</p>
@@ -376,6 +390,7 @@ if (!empty($search_facility) || !empty($search_status) || !empty($search_date_fr
             color: #9ca3af;
         }
     </style>
+    
 
     <script src="js/script.js"></script>
 </body>

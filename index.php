@@ -51,8 +51,10 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login - School Booking System</title>
     <link rel="stylesheet" href="css/style.css">
+    <link rel="icon" href="favicon.ico" type="image/x-icon">
 </head>
 <body class="login-page">
+    
     <!-- Animated Water Bubbles Background -->
     <div class="bubble-container">
         <div class="bubble bubble-1"></div>
@@ -68,7 +70,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     <!-- Navigation -->
     <nav class="navbar-transparent">
         <div class="container">
-            <a href="index.php" class="nav-brand-logo">Booking System</a>
+            <a href="index.php" class="nav-brand-logo">Home</a>
             <ul class="nav-links">
                 <li><a href="register.php">Register</a></li>
                 <li><button id="darkModeToggle" class="dark-mode-btn" title="Toggle Dark Mode">🌙</button></li>
@@ -76,15 +78,17 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         </div>
     </nav>
 
+    <img src="logo.png" class="main-logo">
+
     <!-- Main Content -->
     <div class="login-hero">
         <div class="container">
             <div class="login-grid">
                 <!-- Left Section -->
                 <div class="login-hero-section">
-                    <h1 class="hero-title">School Facility<br>Management System</h1>
+                    <h1 class="hero-title">Booking System</h1>
                     <p class="hero-subtitle">Dhammissara National School</p>
-                    <p class="hero-description">Modern booking system for managing school facilities efficiently</p>
+                    <p class="hero-description">Modern booking system for booking school facilities efficiently</p>
                     
                     <div class="hero-features">
                         <div class="feature-item">
@@ -105,7 +109,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 <!-- Right Section - Login Form -->
                 <div class="login-form-section">
                     <div class="form-card">
-                        <h2 class="form-title">Welcome Back</h2>
+                        <h2 class="form-title">Welcome!</h2>
                         <p class="form-subtitle">Login to your account</p>
 
                         <?php if (!empty($success)): ?>

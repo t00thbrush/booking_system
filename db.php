@@ -1,26 +1,22 @@
 <?php
-// Database connection file
-define('DB_SERVER', 'localhost');
-define('DB_USER', 'booking_user');
-define('DB_PASSWORD', 'booking_password');
-define('DB_NAME', 'booking_system');
+// Database connection file - Production Version
+define('DB_SERVER', 'sql101.ezyro.com');
+define('DB_USER', 'ezyro_41338953');
+define('DB_PASSWORD', 'alohomora');
+define('DB_NAME', 'ezyro_41338953_booking_system');
 
-// Connect to database
-$conn = mysqli_connect(DB_SERVER, DB_USER, DB_PASSWORD);
+// Connect to database directly with the database name
+$conn = mysqli_connect(DB_SERVER, DB_USER, DB_PASSWORD, DB_NAME);
 
 // Check connection
 if (!$conn) {
     die("Connection failed: " . mysqli_connect_error());
 }
 
-// Create database if it doesn't exist
-$sql = "CREATE DATABASE IF NOT EXISTS " . DB_NAME;
-if (mysqli_query($conn, $sql)) {
-    // Database created or already exists
-}
+// Set charset to UTF-8
+mysqli_set_charset($conn, "utf8");
 
-// Select the database
-mysqli_select_db($conn, DB_NAME);
+// --- TABLE INITIALIZATION LOGIC ---
 
 // Create Users table
 $users_table = "CREATE TABLE IF NOT EXISTS users (
@@ -31,12 +27,12 @@ $users_table = "CREATE TABLE IF NOT EXISTS users (
     password VARCHAR(255) NOT NULL,
     email VARCHAR(100) UNIQUE,
     is_approved BOOLEAN DEFAULT TRUE,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    two_factor_enabled BOOLEAN DEFAULT FALSE,
+    two_factor_secret VARCHAR(100),
+    backup_codes JSON
 )";
-
-if (!mysqli_query($conn, $users_table)) {
-    echo "Error creating users table: " . mysqli_error($conn);
-}
+mysqli_query($conn, $users_table);
 
 // Create Facilities table
 $facilities_table = "CREATE TABLE IF NOT EXISTS facilities (
@@ -44,12 +40,10 @@ $facilities_table = "CREATE TABLE IF NOT EXISTS facilities (
     facility_name VARCHAR(100) NOT NULL,
     description TEXT,
     capacity INT DEFAULT 50,
+    amenities TEXT DEFAULT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 )";
-
-if (!mysqli_query($conn, $facilities_table)) {
-    echo "Error creating facilities table: " . mysqli_error($conn);
-}
+mysqli_query($conn, $facilities_table);
 
 // Create Bookings table
 $bookings_table = "CREATE TABLE IF NOT EXISTS bookings (
@@ -61,17 +55,20 @@ $bookings_table = "CREATE TABLE IF NOT EXISTS bookings (
     status ENUM('Pending', 'Approved', 'Rejected', 'Cancelled') DEFAULT 'Pending',
     purpose VARCHAR(255),
     notes TEXT,
+    is_recurring BOOLEAN DEFAULT FALSE,
+    recurring_pattern VARCHAR(50),
+    recurring_end_date DATE,
+    parent_booking_id INT,
+    on_waiting_list BOOLEAN DEFAULT FALSE,
+    waiting_list_position INT DEFAULT 0,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE,
     FOREIGN KEY (facility_id) REFERENCES facilities(facility_id) ON DELETE CASCADE,
     UNIQUE KEY unique_booking (facility_id, booking_date, time_slot)
 )";
+mysqli_query($conn, $bookings_table);
 
-if (!mysqli_query($conn, $bookings_table)) {
-    echo "Error creating bookings table: " . mysqli_error($conn);
-}
-
-// Create Comments table for booking discussions
+// Create Comments table
 $comments_table = "CREATE TABLE IF NOT EXISTS booking_comments (
     comment_id INT AUTO_INCREMENT PRIMARY KEY,
     booking_id INT NOT NULL,
@@ -81,10 +78,7 @@ $comments_table = "CREATE TABLE IF NOT EXISTS booking_comments (
     FOREIGN KEY (booking_id) REFERENCES bookings(booking_id) ON DELETE CASCADE,
     FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE
 )";
-
-if (!mysqli_query($conn, $comments_table)) {
-    echo "Error creating booking_comments table: " . mysqli_error($conn);
-}
+mysqli_query($conn, $comments_table);
 
 // Create Audit Log table
 $audit_table = "CREATE TABLE IF NOT EXISTS audit_log (
@@ -98,43 +92,9 @@ $audit_table = "CREATE TABLE IF NOT EXISTS audit_log (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE SET NULL
 )";
+mysqli_query($conn, $audit_table);
 
-if (!mysqli_query($conn, $audit_table)) {
-    echo "Error creating audit_log table: " . mysqli_error($conn);
-}
-
-// Add amenities column to facilities if it doesn't exist
-$check_amenities = "SHOW COLUMNS FROM facilities LIKE 'amenities'";
-$result = mysqli_query($conn, $check_amenities);
-if (mysqli_num_rows($result) == 0) {
-    $alter_query = "ALTER TABLE facilities ADD COLUMN amenities TEXT DEFAULT NULL";
-    mysqli_query($conn, $alter_query);
-}
-
-// Add recurring booking columns if they don't exist
-$check_recurring = "SHOW COLUMNS FROM bookings LIKE 'is_recurring'";
-$result = mysqli_query($conn, $check_recurring);
-if (mysqli_num_rows($result) == 0) {
-    $alter_query = "ALTER TABLE bookings ADD COLUMN is_recurring BOOLEAN DEFAULT FALSE,
-                    ADD COLUMN recurring_pattern VARCHAR(50),
-                    ADD COLUMN recurring_end_date DATE,
-                    ADD COLUMN parent_booking_id INT,
-                    ADD COLUMN on_waiting_list BOOLEAN DEFAULT FALSE,
-                    ADD COLUMN waiting_list_position INT DEFAULT 0";
-    mysqli_query($conn, $alter_query);
-}
-
-// Add 2FA column to users if it doesn't exist
-$check_2fa = "SHOW COLUMNS FROM users LIKE 'two_factor_enabled'";
-$result = mysqli_query($conn, $check_2fa);
-if (mysqli_num_rows($result) == 0) {
-    $alter_query = "ALTER TABLE users ADD COLUMN two_factor_enabled BOOLEAN DEFAULT FALSE,
-                    ADD COLUMN two_factor_secret VARCHAR(100),
-                    ADD COLUMN backup_codes JSON";
-    mysqli_query($conn, $alter_query);
-}
-
-// Create Teacher Facilities table to link teachers to facilities they manage
+// Create Teacher Facilities table
 $teacher_facilities_table = "CREATE TABLE IF NOT EXISTS teacher_facilities (
     id INT AUTO_INCREMENT PRIMARY KEY,
     teacher_id INT NOT NULL,
@@ -144,12 +104,9 @@ $teacher_facilities_table = "CREATE TABLE IF NOT EXISTS teacher_facilities (
     FOREIGN KEY (facility_id) REFERENCES facilities(facility_id) ON DELETE CASCADE,
     UNIQUE KEY unique_assignment (teacher_id, facility_id)
 )";
+mysqli_query($conn, $teacher_facilities_table);
 
-if (!mysqli_query($conn, $teacher_facilities_table)) {
-    echo "Error creating teacher_facilities table: " . mysqli_error($conn);
-}
-
-// Insert sample facilities if not exist
+// Insert sample facilities if none exist
 $check_facilities = "SELECT COUNT(*) as count FROM facilities";
 $result = mysqli_query($conn, $check_facilities);
 $row = mysqli_fetch_assoc($result);
@@ -164,7 +121,4 @@ if ($row['count'] == 0) {
     
     mysqli_query($conn, $insert_facilities);
 }
-
-// Set charset to UTF-8
-mysqli_set_charset($conn, "utf8");
 ?>

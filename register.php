@@ -64,6 +64,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Register - School Booking System</title>
     <link rel="stylesheet" href="css/style.css">
+    <link rel="icon" href="favicon.ico" type="image/x-icon">
 </head>
 <body class="register-page">
     <!-- Animated Water Bubbles Background -->
@@ -88,6 +89,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             </ul>
         </div>
     </nav>
+
+    <img src="logo.png" class="main-logo">
 
     <!-- Main Content -->
     <div class="login-hero">

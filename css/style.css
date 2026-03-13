@@ -56,6 +56,20 @@ body {
     line-height: 1.6;
 }
 
+.main-logo {
+    width: 40vw;
+    height: 40vw;
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -48%);
+    z-index: -1;
+    filter: drop-shadow(0 0 10px rgba(144, 238, 144, 0.5));
+    border-radius: 50%;
+    opacity: 30%;
+    pointer-events: none;
+}
+
 /* ============================
    TYPOGRAPHY
    ============================ */
@@ -168,9 +182,11 @@ nav {
 }
 
 nav .container {
+    position: relative;
     display: flex;
     justify-content: space-between;
     align-items: center;
+    z-index: 10;
 }
 
 .nav-brand {
@@ -236,7 +252,6 @@ nav .container {
 
 .dark-mode-btn:hover {
     background: rgba(163, 255, 204, 0.2);
-    transform: rotate(20deg);
     box-shadow: 0 0 15px rgba(163, 255, 204, 0.3);
 }
 
@@ -771,6 +786,7 @@ textarea {
     padding: 2.5rem;
     box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
     border: 1px solid rgba(163, 255, 204, 0.1);
+    opacity: 80%;
 }
 
 .form-title {
@@ -895,7 +911,7 @@ textarea {
 }
 
 .light-mode .bubble-container {
-    background: linear-gradient(135deg, #f8fafc 0%, #ecfdf5 100%);
+    background: linear-gradient(135deg, #ebe98f 0%, #90dd80 100%);
 }
 
 .light-mode .hero-title, .light-mode .page-header h1, .light-mode .form-title {
